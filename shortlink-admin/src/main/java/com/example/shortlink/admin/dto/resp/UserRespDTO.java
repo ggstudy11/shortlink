@@ -1,5 +1,7 @@
 package com.example.shortlink.admin.dto.resp;
 
+import com.example.shortlink.admin.common.serialize.IdCardDesensitizationSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 
 /**
@@ -27,6 +29,7 @@ public class UserRespDTO {
     /**
      * 电话
      */
+    @JsonSerialize(using = IdCardDesensitizationSerializer.class)
     private String phone;
 
     /**
