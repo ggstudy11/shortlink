@@ -7,7 +7,8 @@ public enum UserErrorCode implements IErrorCode {
     USER_NOT_EXIST("B002001", "用户不存在"),
     USER_NAME_EXIST("B002002", "用户名已存在"),
     USER_CREATE_ERROR("B002003", "用户创建失败"),
-    USER_EXIST("B002004", "用户已存在");
+    USER_EXIST("B002004", "用户已存在"),
+    USER_UPDATE_ERROR("B002005", "用户信息更新失败");
 
     private final String code;
 
