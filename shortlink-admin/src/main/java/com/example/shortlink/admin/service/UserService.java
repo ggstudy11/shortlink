@@ -2,8 +2,10 @@ package com.example.shortlink.admin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.shortlink.admin.dao.entity.UserDO;
+import com.example.shortlink.admin.dto.req.UserLoginReqDTO;
 import com.example.shortlink.admin.dto.req.UserRegisterReqDTO;
 import com.example.shortlink.admin.dto.req.UserUpdateReqDTO;
+import com.example.shortlink.admin.dto.resp.UserLoginRespDTO;
 import com.example.shortlink.admin.dto.resp.UserRespDTO;
 
 public interface UserService extends IService<UserDO> {
@@ -19,4 +21,8 @@ public interface UserService extends IService<UserDO> {
     void register(UserRegisterReqDTO userRegisterReqDTO);
 
     void update(UserUpdateReqDTO userUpdateReqDTO);
+
+    UserLoginRespDTO login(UserLoginReqDTO userLoginReqDTO);
+
+    Boolean checkLogin(String username, String token);
 }

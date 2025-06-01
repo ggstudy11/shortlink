@@ -2,8 +2,10 @@ package com.example.shortlink.admin.controller;
 
 import com.example.shortlink.admin.common.convention.result.Result;
 import com.example.shortlink.admin.common.convention.result.Results;
+import com.example.shortlink.admin.dto.req.UserLoginReqDTO;
 import com.example.shortlink.admin.dto.req.UserRegisterReqDTO;
 import com.example.shortlink.admin.dto.req.UserUpdateReqDTO;
+import com.example.shortlink.admin.dto.resp.UserLoginRespDTO;
 import com.example.shortlink.admin.dto.resp.UserRespDTO;
 import com.example.shortlink.admin.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +34,7 @@ public class UserController {
         return Results.success(userService.hasUsername(username));
     }
 
-    @PostMapping()
+    @PostMapping
     public Result<Void> register(@RequestBody UserRegisterReqDTO userRegisterReqDTO) {
         userService.register(userRegisterReqDTO);
         return Results.success();
@@ -42,5 +44,15 @@ public class UserController {
     public Result<Void> update(@RequestBody UserUpdateReqDTO userUpdateReqDTO) {
         userService.update(userUpdateReqDTO);
         return Results.success();
+    }
+
+    @PostMapping("/login")
+    public Result<UserLoginRespDTO> login(@RequestBody UserLoginReqDTO userLoginReqDTO) {
+        return Results.success(userService.login(userLoginReqDTO));
+    }
+
+    @GetMapping("/check-login")
+    public Result<Boolean> checkLogin(@RequestParam("username") String username, @RequestParam("token") String token) {
+        return Results.success(userService.checkLogin(username, token));
     }
 }
