@@ -1,6 +1,7 @@
 package com.example.shortlink.admin.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.shortlink.admin.common.constant.RedisCacheConstant;
@@ -9,6 +10,7 @@ import com.example.shortlink.admin.common.enums.UserErrorCode;
 import com.example.shortlink.admin.dao.entity.UserDO;
 import com.example.shortlink.admin.dao.mapper.UserMapper;
 import com.example.shortlink.admin.dto.req.UserRegisterReqDTO;
+import com.example.shortlink.admin.dto.req.UserUpdateReqDTO;
 import com.example.shortlink.admin.dto.resp.UserRespDTO;
 import com.example.shortlink.admin.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -68,5 +70,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
             throw new ClientException(UserErrorCode.USER_EXIST);
         }
 
+    }
+
+    @Override
+    public void update(UserUpdateReqDTO userUpdateReqDTO) {
+        // TODO 检查登陆用户是否与当前用户名一致，防止越权访问
+
+        LambdaUpdateWrapper<UserDO> wrapper = Wrappers.lambdaUpdate(UserDO.class).eq(UserDO::getUsername, userUpdateReqDTO.getUsername());
+        UserDO userDO = new UserDO();
+        BeanUtils.copyProperties(userUpdateReqDTO, userDO);
+        int update = baseMapper.update(userDO, wrapper);
+        if (update != 1) {
+            throw new ClientException(UserErrorCode.USER_UPDATE_ERROR);
+        }
     }
 }

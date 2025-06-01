@@ -3,6 +3,7 @@ package com.example.shortlink.admin.controller;
 import com.example.shortlink.admin.common.convention.result.Result;
 import com.example.shortlink.admin.common.convention.result.Results;
 import com.example.shortlink.admin.dto.req.UserRegisterReqDTO;
+import com.example.shortlink.admin.dto.req.UserUpdateReqDTO;
 import com.example.shortlink.admin.dto.resp.UserRespDTO;
 import com.example.shortlink.admin.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,12 @@ public class UserController {
     @PostMapping()
     public Result<Void> register(@RequestBody UserRegisterReqDTO userRegisterReqDTO) {
         userService.register(userRegisterReqDTO);
+        return Results.success();
+    }
+
+    @PutMapping
+    public Result<Void> update(@RequestBody UserUpdateReqDTO userUpdateReqDTO) {
+        userService.update(userUpdateReqDTO);
         return Results.success();
     }
 }
