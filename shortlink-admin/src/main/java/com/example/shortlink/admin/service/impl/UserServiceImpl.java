@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.shortlink.admin.common.biz.user.UserContext;
 import com.example.shortlink.admin.common.biz.user.UserInfoDTO;
 import com.example.shortlink.admin.common.constant.RedisCacheConstant;
 import com.example.shortlink.admin.common.convention.exception.ClientException;
@@ -25,6 +26,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -83,7 +85,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
 
     @Override
     public void update(UserUpdateReqDTO userUpdateReqDTO) {
-        // TODO 检查登陆用户是否与当前用户名一致，防止越权访问
+
+        if (!Objects.equals(userUpdateReqDTO.getUsername(), UserContext.getUsername())) {
+            throw new ClientException(UserErrorCode.USER_NOT_POWER);
+        }
 
         LambdaUpdateWrapper<UserDO> wrapper = Wrappers.lambdaUpdate(UserDO.class).eq(UserDO::getUsername, userUpdateReqDTO.getUsername());
         UserDO userDO = new UserDO();
@@ -109,8 +114,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         }
 
         String token = UUID.randomUUID().toString();
+
         UserInfoDTO userInfoDTO = new UserInfoDTO();
         BeanUtils.copyProperties(userDO, userInfoDTO);
+        userInfoDTO.setToken(token);
+        userInfoDTO.setUserId(userDO.getId());
+
         stringRedisTemplate.opsForHash().put(RedisCacheConstant.LOGIN_USER + userDO.getUsername(), token, JSON.toJSONString(userInfoDTO));
         stringRedisTemplate.expire(RedisCacheConstant.LOGIN_USER + userDO.getUsername(), 30, TimeUnit.DAYS);
         return new UserLoginRespDTO(token);

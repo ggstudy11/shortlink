@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.shortlink.admin.common.biz.user.UserContext;
 import com.example.shortlink.admin.dao.entity.GroupDO;
 import com.example.shortlink.admin.dao.mapper.GroupMapper;
 import com.example.shortlink.admin.dto.req.GroupAddReqDTO;
@@ -24,8 +25,8 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
             gid = RandomGenerator.generate();
         } while (hasGid(gid));
 
-        // TODO some attribute doesnt add
         GroupDO groupDO = GroupDO.builder()
+                .username(UserContext.getUsername())
                 .gid(gid)
                 .sortOrder(0)
                 .name(groupAddReqDTO.getName())
@@ -36,11 +37,10 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
 
     private boolean hasGid(String gid) {
 
-        // TODO replace username
         LambdaQueryWrapper<GroupDO> wrapper = Wrappers.lambdaQuery(GroupDO.class)
                 .eq(GroupDO::getGid, gid)
                 .eq(GroupDO::getDelFlag, 0)
-                .eq(GroupDO::getUsername, null);
+                .eq(GroupDO::getUsername, UserContext.getUsername());
 
         return baseMapper.exists(wrapper);
     }
@@ -48,10 +48,10 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
     @Override
     public List<GroupListRespDTO> listGroup() {
 
-        // TODO username 查询
         LambdaQueryWrapper<GroupDO> wrapper = Wrappers.lambdaQuery(GroupDO.class)
                 .orderByDesc(List.of(GroupDO::getSortOrder, GroupDO::getUpdateTime))
-                .eq(GroupDO::getDelFlag, 0);
+                .eq(GroupDO::getDelFlag, 0)
+                .eq(GroupDO::getUsername, UserContext.getUsername());
 
         List<GroupDO> groupDOList = baseMapper.selectList(wrapper);
 
