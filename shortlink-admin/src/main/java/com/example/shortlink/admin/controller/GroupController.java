@@ -34,4 +34,10 @@ public class GroupController {
         groupService.updateGroup(groupUpdateReqDTO);
         return Results.success();
     }
+
+    @DeleteMapping
+    public Result<Void> deleteGroup(@RequestParam String gid) {
+        groupService.deleteGroup(gid);
+        return Results.success();
+    }
 }

@@ -63,11 +63,28 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
     @Override
     public void updateGroup(GroupUpdateReqDTO groupUpdateReqDTO) {
 
-        LambdaUpdateWrapper<GroupDO> wrapper = Wrappers.lambdaUpdate(GroupDO.class).eq(GroupDO::getGid, groupUpdateReqDTO.getGid());
+        LambdaUpdateWrapper<GroupDO> wrapper = Wrappers.lambdaUpdate(GroupDO.class)
+                .eq(GroupDO::getGid, groupUpdateReqDTO.getGid())
+                .eq(GroupDO::getUsername, UserContext.getUsername())
+                .eq(GroupDO::getDelFlag, 0);
 
         GroupDO groupDO = GroupDO.builder()
                         .name(groupUpdateReqDTO.getName())
                         .build();
+
+        baseMapper.update(groupDO, wrapper);
+    }
+
+    @Override
+    public void deleteGroup(String gid) {
+
+        LambdaUpdateWrapper<GroupDO> wrapper = Wrappers.lambdaUpdate(GroupDO.class)
+                .eq(GroupDO::getGid, gid)
+                .eq(GroupDO::getUsername, UserContext.getUsername())
+                .eq(GroupDO::getDelFlag, 0);
+
+        GroupDO groupDO = GroupDO.builder().build();
+        groupDO.setDelFlag(1);
 
         baseMapper.update(groupDO, wrapper);
     }
