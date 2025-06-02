@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.shortlink.admin.common.biz.user.UserInfoDTO;
 import com.example.shortlink.admin.common.constant.RedisCacheConstant;
 import com.example.shortlink.admin.common.convention.exception.ClientException;
 import com.example.shortlink.admin.common.enums.UserErrorCode;
@@ -108,7 +109,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         }
 
         String token = UUID.randomUUID().toString();
-        stringRedisTemplate.opsForHash().put(RedisCacheConstant.LOGIN_USER + userDO.getUsername(), token, JSON.toJSONString(userDO));
+        UserInfoDTO userInfoDTO = new UserInfoDTO();
+        BeanUtils.copyProperties(userDO, userInfoDTO);
+        stringRedisTemplate.opsForHash().put(RedisCacheConstant.LOGIN_USER + userDO.getUsername(), token, JSON.toJSONString(userInfoDTO));
         stringRedisTemplate.expire(RedisCacheConstant.LOGIN_USER + userDO.getUsername(), 30, TimeUnit.DAYS);
         return new UserLoginRespDTO(token);
     }
