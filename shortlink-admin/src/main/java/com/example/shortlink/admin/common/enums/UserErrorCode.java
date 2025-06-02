@@ -11,7 +11,8 @@ public enum UserErrorCode implements IErrorCode {
     USER_UPDATE_ERROR("B002005", "用户信息更新失败"),
     USER_LOGIN_ERROR("B002006", "用户名或密码错误"),
     USER_ALREADY_LOGIN("B002007", "用户已登陆"),
-    USER_NOT_LOGIN("B002008", "用户未登陆");
+    USER_NOT_LOGIN("B002008", "用户未登陆"),
+    USER_NOT_POWER("B002009", "无权访问");
 
     private final String code;
 
