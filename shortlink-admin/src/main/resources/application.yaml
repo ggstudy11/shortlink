@@ -14,3 +14,9 @@ spring:
       host: 8.153.102.70
       port: 6379
       password: 07030877
+
+auth:
+  excludeUrls:
+    - /api/short-link/v1/user/login
+    - /api/short-link/v1/user/register
+    - /api/short-link/v1/user/check-login
