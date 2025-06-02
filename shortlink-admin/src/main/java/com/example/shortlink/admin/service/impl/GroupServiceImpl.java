@@ -2,12 +2,14 @@ package com.example.shortlink.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.shortlink.admin.common.biz.user.UserContext;
 import com.example.shortlink.admin.dao.entity.GroupDO;
 import com.example.shortlink.admin.dao.mapper.GroupMapper;
 import com.example.shortlink.admin.dto.req.GroupAddReqDTO;
+import com.example.shortlink.admin.dto.req.GroupUpdateReqDTO;
 import com.example.shortlink.admin.dto.resp.GroupListRespDTO;
 import com.example.shortlink.admin.service.GroupService;
 import com.example.shortlink.admin.util.RandomGenerator;
@@ -56,5 +58,17 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
         List<GroupDO> groupDOList = baseMapper.selectList(wrapper);
 
         return BeanUtil.copyToList(groupDOList, GroupListRespDTO.class);
+    }
+
+    @Override
+    public void updateGroup(GroupUpdateReqDTO groupUpdateReqDTO) {
+
+        LambdaUpdateWrapper<GroupDO> wrapper = Wrappers.lambdaUpdate(GroupDO.class).eq(GroupDO::getGid, groupUpdateReqDTO.getGid());
+
+        GroupDO groupDO = GroupDO.builder()
+                        .name(groupUpdateReqDTO.getName())
+                        .build();
+
+        baseMapper.update(groupDO, wrapper);
     }
 }
