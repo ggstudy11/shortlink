@@ -3,6 +3,7 @@ package com.example.shortlink.admin.controller;
 import com.example.shortlink.admin.common.convention.result.Result;
 import com.example.shortlink.admin.common.convention.result.Results;
 import com.example.shortlink.admin.dto.req.GroupAddReqDTO;
+import com.example.shortlink.admin.dto.req.GroupSortReqDTO;
 import com.example.shortlink.admin.dto.req.GroupUpdateReqDTO;
 import com.example.shortlink.admin.dto.resp.GroupListRespDTO;
 import com.example.shortlink.admin.service.GroupService;
@@ -38,6 +39,12 @@ public class GroupController {
     @DeleteMapping
     public Result<Void> deleteGroup(@RequestParam String gid) {
         groupService.deleteGroup(gid);
+        return Results.success();
+    }
+
+    @PostMapping("/sort")
+    public Result<Void> sortGroup(@RequestBody List<GroupSortReqDTO> groupSortReqDTOList) {
+        groupService.sortGroup(groupSortReqDTOList);
         return Results.success();
     }
 }

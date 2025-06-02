@@ -9,6 +9,7 @@ import com.example.shortlink.admin.common.biz.user.UserContext;
 import com.example.shortlink.admin.dao.entity.GroupDO;
 import com.example.shortlink.admin.dao.mapper.GroupMapper;
 import com.example.shortlink.admin.dto.req.GroupAddReqDTO;
+import com.example.shortlink.admin.dto.req.GroupSortReqDTO;
 import com.example.shortlink.admin.dto.req.GroupUpdateReqDTO;
 import com.example.shortlink.admin.dto.resp.GroupListRespDTO;
 import com.example.shortlink.admin.service.GroupService;
@@ -87,5 +88,21 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
         groupDO.setDelFlag(1);
 
         baseMapper.update(groupDO, wrapper);
+    }
+
+    @Override
+    public void sortGroup(List<GroupSortReqDTO> groupSortReqDTOList) {
+        groupSortReqDTOList.forEach(groupSortReqDTO -> {
+            GroupDO groupDO = GroupDO.builder()
+                    .sortOrder(groupSortReqDTO.getSortOrder())
+                    .build();
+
+            LambdaUpdateWrapper<GroupDO> wrapper = Wrappers.lambdaUpdate(GroupDO.class)
+                    .eq(GroupDO::getGid, groupSortReqDTO.getGid())
+                    .eq(GroupDO::getUsername, UserContext.getUsername())
+                    .eq(GroupDO::getDelFlag, 0);
+
+            baseMapper.update(groupDO, wrapper);
+        });
     }
 }
