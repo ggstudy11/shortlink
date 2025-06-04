@@ -3,10 +3,14 @@ package com.example.shortlink.project.dao.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.example.shortlink.project.common.database.BaseDO;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.Date;
 
 @TableName("t_link")
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class ShortLinkDO extends BaseDO {
 
     private Long id;
@@ -25,7 +29,7 @@ public class ShortLinkDO extends BaseDO {
 
     private Integer enableStatus;
 
-    private Integer createType;
+    private Integer createdType;
 
     private Integer validDateType;
 
