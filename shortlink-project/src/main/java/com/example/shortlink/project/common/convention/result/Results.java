@@ -1,7 +1,7 @@
 package com.example.shortlink.project.common.convention.result;
 
-import com.example.shortlink.admin.common.convention.errorcode.BaseErrorCode;
-import com.example.shortlink.admin.common.convention.exception.AbstractException;
+import com.example.shortlink.project.common.convention.errorcode.BaseErrorCode;
+import com.example.shortlink.project.common.convention.exception.AbstractException;
 
 import java.util.Optional;
 

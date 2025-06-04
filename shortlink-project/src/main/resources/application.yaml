@@ -1,2 +1,23 @@
 server:
   port: 8081
+
+
+spring:
+  data:
+    redis:
+      host: 8.153.102.70
+      port: 6379
+      password: 07030877
+
+
+  datasource:
+    username: root
+    password: 07030877
+    url: jdbc:mysql://8.153.102.70:3306/link?characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&serverTimezone=GMT%2B8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-test-query: select 1
+      connection-timeout: 20000
+      idle-timeout: 300000
+      maximum-pool-size: 5
+      minimum-idle: 5

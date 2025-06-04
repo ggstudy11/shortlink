@@ -1,6 +1,6 @@
 package com.example.shortlink.project.common.convention.exception;
 
-import com.example.shortlink.admin.common.convention.errorcode.IErrorCode;
+import com.example.shortlink.project.common.convention.errorcode.IErrorCode;
 import lombok.Getter;
 import org.springframework.util.StringUtils;
 

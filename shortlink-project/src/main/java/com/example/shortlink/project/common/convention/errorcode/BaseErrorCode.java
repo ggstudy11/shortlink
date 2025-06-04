@@ -1,7 +1,5 @@
 package com.example.shortlink.project.common.convention.errorcode;
 
-import com.example.shortlink.admin.common.convention.errorcode.IErrorCode;
-
 /**
  * 基础错误码定义
  */
