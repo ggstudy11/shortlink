@@ -5,6 +5,7 @@ import com.example.shortlink.admin.common.convention.result.Result;
 import com.example.shortlink.admin.remote.dto.ShortLinkRemoteService;
 import com.example.shortlink.admin.remote.dto.req.ShortLinkCreateReqDTO;
 import com.example.shortlink.admin.remote.dto.req.ShortLinkPageReqDTO;
+import com.example.shortlink.admin.remote.dto.req.ShortLinkUpdateReqDTO;
 import com.example.shortlink.admin.remote.dto.resp.ShortLinkCreateRespDTO;
 import com.example.shortlink.admin.remote.dto.resp.ShortLinkPageRespDTO;
 import lombok.RequiredArgsConstructor;
@@ -26,5 +27,10 @@ public class ShortLinkController {
     public Result<ShortLinkCreateRespDTO> createShortLink(@RequestBody ShortLinkCreateReqDTO shortLinkCreateReqDTO) {
         System.out.println(shortLinkCreateReqDTO);
         return shortLinkRemoteService.createShortLink(shortLinkCreateReqDTO);
+    }
+
+    @PostMapping("/update")
+    public Result<Void> updateShortLink(@RequestBody ShortLinkUpdateReqDTO shortLinkUpdateReqDTO) {
+        return shortLinkRemoteService.updateShortLink(shortLinkUpdateReqDTO);
     }
 }
