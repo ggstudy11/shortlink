@@ -5,6 +5,7 @@ import com.example.shortlink.project.common.convention.result.Result;
 import com.example.shortlink.project.common.convention.result.Results;
 import com.example.shortlink.project.dto.req.ShortLinkCreateReqDTO;
 import com.example.shortlink.project.dto.req.ShortLinkPageReqDTO;
+import com.example.shortlink.project.dto.req.ShortLinkUpdateReqDTO;
 import com.example.shortlink.project.dto.resp.ShortLinkCountRespDTO;
 import com.example.shortlink.project.dto.resp.ShortLinkCreateRespDTO;
 import com.example.shortlink.project.dto.resp.ShortLinkPageRespDTO;
@@ -34,5 +35,11 @@ public class ShortLinkController {
     @GetMapping("/count")
     public Result<List<ShortLinkCountRespDTO>> countShortLink(@RequestParam("gids") List<String> gids) {
         return Results.success(shortLinkService.countShortLink(gids));
+    }
+
+    @PutMapping
+    public Result<Void> updateShortLink(@RequestBody ShortLinkUpdateReqDTO shortLinkUpdateReqDTO) {
+        shortLinkService.updateShortLink(shortLinkUpdateReqDTO);
+        return Results.success();
     }
 }

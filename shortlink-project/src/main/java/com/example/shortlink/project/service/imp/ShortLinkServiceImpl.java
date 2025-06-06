@@ -11,6 +11,7 @@ import com.example.shortlink.project.dao.entity.ShortLinkDO;
 import com.example.shortlink.project.dao.mapper.ShortLinkMapper;
 import com.example.shortlink.project.dto.req.ShortLinkCreateReqDTO;
 import com.example.shortlink.project.dto.req.ShortLinkPageReqDTO;
+import com.example.shortlink.project.dto.req.ShortLinkUpdateReqDTO;
 import com.example.shortlink.project.dto.resp.ShortLinkCountRespDTO;
 import com.example.shortlink.project.dto.resp.ShortLinkCreateRespDTO;
 import com.example.shortlink.project.dto.resp.ShortLinkPageRespDTO;
@@ -18,6 +19,7 @@ import com.example.shortlink.project.service.ShortLinkService;
 import com.example.shortlink.project.utils.HashUtil;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RBloomFilter;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -95,6 +97,35 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     return dto;
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateShortLink(ShortLinkUpdateReqDTO shortLinkUpdateReqDTO) {
+
+        LambdaQueryWrapper<ShortLinkDO> wrapper = Wrappers.lambdaQuery(ShortLinkDO.class)
+                .eq(ShortLinkDO::getGid, shortLinkUpdateReqDTO.getOriginGid())
+                .eq(ShortLinkDO::getEnableStatus, 1)
+                .eq(ShortLinkDO::getDelFlag, 0)
+                .eq(ShortLinkDO::getFullShortUrl, shortLinkUpdateReqDTO.getFullShortUrl());
+        ShortLinkDO shortLinkDO = baseMapper.selectOne(wrapper);
+
+        if (shortLinkDO != null) {
+            if (shortLinkUpdateReqDTO.getNewGid() != null) {
+                baseMapper.deleteById(shortLinkDO.getId());
+                ShortLinkDO newShortLink = new ShortLinkDO();
+                BeanUtils.copyProperties(shortLinkDO, newShortLink);
+                newShortLink.setId(null);
+                newShortLink.setGid(shortLinkUpdateReqDTO.getNewGid());
+                BeanUtils.copyProperties(shortLinkUpdateReqDTO, newShortLink);
+                baseMapper.insert(newShortLink);
+            }
+            else {
+                BeanUtils.copyProperties(shortLinkUpdateReqDTO, shortLinkDO);
+                baseMapper.update(shortLinkDO, wrapper);
+            }
+        } else {
+            throw new RuntimeException("短链接记录不存在");
+        }
     }
 
     private String generateSuffix(String domain, String originUrl) {
