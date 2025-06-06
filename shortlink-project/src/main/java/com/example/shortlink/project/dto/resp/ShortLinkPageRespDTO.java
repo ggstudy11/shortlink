@@ -1,19 +1,25 @@
-package com.example.shortlink.project.dto.req;
+package com.example.shortlink.project.dto.resp;
 
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
-public class ShortLinkCreateReqDTO {
+public class ShortLinkPageRespDTO {
+
+    private Long id;
 
     private String domain;
 
+    private String shortUri;
+
+    private String fullShortUrl;
+
     private String originUrl;
 
-    private String gid;
+    private Integer clickNum;
 
-    private Integer createdType;
+    private String gid;
 
     private Integer validDateType;
 
