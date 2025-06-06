@@ -2,6 +2,7 @@ package com.example.shortlink.project.service.imp;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -10,6 +11,7 @@ import com.example.shortlink.project.dao.entity.ShortLinkDO;
 import com.example.shortlink.project.dao.mapper.ShortLinkMapper;
 import com.example.shortlink.project.dto.req.ShortLinkCreateReqDTO;
 import com.example.shortlink.project.dto.req.ShortLinkPageReqDTO;
+import com.example.shortlink.project.dto.resp.ShortLinkCountRespDTO;
 import com.example.shortlink.project.dto.resp.ShortLinkCreateRespDTO;
 import com.example.shortlink.project.dto.resp.ShortLinkPageRespDTO;
 import com.example.shortlink.project.service.ShortLinkService;
@@ -17,6 +19,10 @@ import com.example.shortlink.project.utils.HashUtil;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RBloomFilter;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -57,6 +63,38 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
 
         IPage<ShortLinkDO> pageResult = baseMapper.selectPage(shortLinkPageReqDTO, wrapper);
         return pageResult.convert(each -> BeanUtil.toBean(each, ShortLinkPageRespDTO.class));
+    }
+
+    @Override
+    public List<ShortLinkCountRespDTO> countShortLink(List<String> gids) {
+        Map<String, Integer> gidCountMap = gids.stream()
+                .collect(Collectors.toMap(
+                        gid -> gid,
+                        val -> 0
+                ));
+
+        QueryWrapper<ShortLinkDO> wrapper = Wrappers.query(new ShortLinkDO())
+                .select("gid, count(*) as shortLinkCount")
+                .in("gid", gids)
+                .eq("enable_status", 1)
+                .eq("del_flag", 0)
+                .groupBy("gid");
+        List<Map<String, Object>> mapList = baseMapper.selectMaps(wrapper);
+
+        mapList.forEach(map -> {
+            String gid = map.get("gid").toString();
+            Integer count = Integer.valueOf(map.get("shortLinkCount").toString());
+            gidCountMap.put(gid, count);
+        });
+
+        return gidCountMap.entrySet().stream()
+                .map(entry -> {
+                    ShortLinkCountRespDTO dto = new ShortLinkCountRespDTO();
+                    dto.setGid(entry.getKey());
+                    dto.setShortLinkCount(entry.getValue());
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 
     private String generateSuffix(String domain, String originUrl) {
