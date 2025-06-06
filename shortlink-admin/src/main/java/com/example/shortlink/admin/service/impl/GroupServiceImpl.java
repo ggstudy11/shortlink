@@ -12,14 +12,20 @@ import com.example.shortlink.admin.dto.req.GroupAddReqDTO;
 import com.example.shortlink.admin.dto.req.GroupSortReqDTO;
 import com.example.shortlink.admin.dto.req.GroupUpdateReqDTO;
 import com.example.shortlink.admin.dto.resp.GroupListRespDTO;
+import com.example.shortlink.admin.remote.dto.ShortLinkRemoteService;
+import com.example.shortlink.admin.remote.dto.resp.ShortLinkCountRespDTO;
 import com.example.shortlink.admin.service.GroupService;
 import com.example.shortlink.admin.util.RandomGenerator;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implements GroupService {
+
+    private static final ShortLinkRemoteService shortLinkRemoteService = new ShortLinkRemoteService() {};
 
     @Override
     public void save(GroupAddReqDTO groupAddReqDTO) {
@@ -50,15 +56,16 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
 
     @Override
     public List<GroupListRespDTO> listGroup() {
-
         LambdaQueryWrapper<GroupDO> wrapper = Wrappers.lambdaQuery(GroupDO.class)
                 .orderByDesc(List.of(GroupDO::getSortOrder, GroupDO::getUpdateTime))
                 .eq(GroupDO::getDelFlag, 0)
                 .eq(GroupDO::getUsername, UserContext.getUsername());
 
         List<GroupDO> groupDOList = baseMapper.selectList(wrapper);
-
-        return BeanUtil.copyToList(groupDOList, GroupListRespDTO.class);
+        List<ShortLinkCountRespDTO> shortLinkCountRespDTOList = shortLinkRemoteService.countShortLink(groupDOList.stream().map(GroupDO::getGid).toList()).getData();
+        List<GroupListRespDTO> results = BeanUtil.copyToList(groupDOList, GroupListRespDTO.class);
+        Map<String, Integer> counts = shortLinkCountRespDTOList.stream().collect(Collectors.toMap(ShortLinkCountRespDTO::getGid, ShortLinkCountRespDTO::getShortLinkCount));
+        return results.stream().peek(result -> result.setShortLinkCount(counts.get(result.getGid()))).toList();
     }
 
     @Override

@@ -7,10 +7,12 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.example.shortlink.admin.common.convention.result.Result;
 import com.example.shortlink.admin.remote.dto.req.ShortLinkCreateReqDTO;
 import com.example.shortlink.admin.remote.dto.req.ShortLinkPageReqDTO;
+import com.example.shortlink.admin.remote.dto.resp.ShortLinkCountRespDTO;
 import com.example.shortlink.admin.remote.dto.resp.ShortLinkCreateRespDTO;
 import com.example.shortlink.admin.remote.dto.resp.ShortLinkPageRespDTO;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public interface ShortLinkRemoteService {
@@ -28,6 +30,13 @@ public interface ShortLinkRemoteService {
         params.put("current", shortLinkPageReqDTO.getCurrent());
         params.put("size", shortLinkPageReqDTO.getSize());
         String jsonStr = HttpUtil.get(baseUrl + "/page", params);
+        return JSON.parseObject(jsonStr, new TypeReference<>(){});
+    }
+
+    default Result<List<ShortLinkCountRespDTO>> countShortLink(List<String> gids) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("gids", gids);
+        String jsonStr = HttpUtil.get(baseUrl + "/count", params);
         return JSON.parseObject(jsonStr, new TypeReference<>(){});
     }
 }
