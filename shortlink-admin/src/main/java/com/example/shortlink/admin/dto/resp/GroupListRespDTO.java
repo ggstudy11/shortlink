@@ -9,7 +9,5 @@ public class GroupListRespDTO {
 
     private String name;
 
-    private String username;
-
     private Integer sortOrder;
 }
