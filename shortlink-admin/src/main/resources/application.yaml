@@ -20,3 +20,4 @@ auth:
     - /api/short-link/v1/user/login
     - /api/short-link/v1/user/register
     - /api/short-link/v1/user/check-login
+    - /api/short-link/v1/user/has-username
