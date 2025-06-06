@@ -17,6 +17,7 @@ import com.example.shortlink.admin.dto.req.UserRegisterReqDTO;
 import com.example.shortlink.admin.dto.req.UserUpdateReqDTO;
 import com.example.shortlink.admin.dto.resp.UserLoginRespDTO;
 import com.example.shortlink.admin.dto.resp.UserRespDTO;
+import com.example.shortlink.admin.service.GroupService;
 import com.example.shortlink.admin.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RBloomFilter;
@@ -25,6 +26,7 @@ import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -37,6 +39,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     private final RBloomFilter<String> userRegisterCachePenetrationBloomFilter;
     private final RedissonClient redissonClient;
     private final StringRedisTemplate stringRedisTemplate;
+    private final GroupService groupService;
 
     @Override
     public UserRespDTO getUserByUsername(String username) {
@@ -58,6 +61,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void register(UserRegisterReqDTO userRegisterReqDTO) {
         if (hasUsername(userRegisterReqDTO.getUsername())) {
             throw new ClientException(UserErrorCode.USER_NAME_EXIST);
@@ -74,6 +78,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
                 }
 
                 userRegisterCachePenetrationBloomFilter.add(userDO.getUsername());
+                groupService.save("默认分组", userDO.getUsername());
             } finally {
                 lock.unlock();
             }
