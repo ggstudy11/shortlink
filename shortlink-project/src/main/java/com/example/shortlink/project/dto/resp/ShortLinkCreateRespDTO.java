@@ -16,4 +16,6 @@ public class ShortLinkCreateRespDTO {
     private String originUrl;
 
     private String fullShortLink;
+
+    private String favicon;
 }

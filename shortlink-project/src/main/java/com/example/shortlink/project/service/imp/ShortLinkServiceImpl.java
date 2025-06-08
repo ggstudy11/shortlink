@@ -23,6 +23,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jodd.util.StringUtil;
 import lombok.RequiredArgsConstructor;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.redisson.api.RBloomFilter;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -31,6 +34,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +56,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         shortLinkDO.setFullShortUrl(shortLinkCreateReqDTO.getDomain() + "/" + shortLinkSuffix);
         shortLinkDO.setShortUri(shortLinkSuffix);
         shortLinkDO.setEnableStatus(1);
-
+        shortLinkDO.setFavicon(getFavicon(shortLinkCreateReqDTO.getOriginUrl()));
         /* 这里应该是有问题的 */
 
 //        try {
@@ -59,6 +64,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
 //        } catch (DuplicateKeyException e) {
 //            throw new ServiceException("短链接生成重复");
 //        }
+
         baseMapper.insert(shortLinkDO);
         stringRedisTemplate.opsForValue().set(RedisCacheConstant.SHORT_URL_PREFIX + shortLinkDO.getFullShortUrl(), shortLinkDO.getOriginUrl(), LinkUtil.getShortLinkCacheTime(shortLinkDO.getValidDate()), TimeUnit.MILLISECONDS);
         shortUriCreateCachePenetrationBloomFilter.add(shortLinkDO.getFullShortUrl());
@@ -66,6 +72,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .gid(shortLinkCreateReqDTO.getGid())
                 .fullShortLink(shortLinkDO.getFullShortUrl())
                 .originUrl(shortLinkCreateReqDTO.getOriginUrl())
+                .favicon(shortLinkDO.getFavicon())
                 .build();
     }
 
@@ -207,5 +214,44 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             }
         }
         return shortUri;
+    }
+
+    /**
+     * 获取网站的favicon图标链接
+     * @param url 网站的URL
+     * @return favicon图标链接，如果不存在则返回null
+     */
+    private String getFavicon(String url) {
+        try {
+            URL targetUrl = new URL(url);
+            HttpURLConnection connection = (HttpURLConnection) targetUrl.openConnection();
+            connection.setInstanceFollowRedirects(false);
+            connection.setRequestMethod("GET");
+            connection.connect();
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_MOVED_PERM || responseCode == HttpURLConnection.HTTP_MOVED_TEMP) {
+                String redirectUrl = connection.getHeaderField("Location");
+                if (redirectUrl != null) {
+                    URL newUrl = new URL(redirectUrl);
+                    connection = (HttpURLConnection) newUrl.openConnection();
+                    connection.setRequestMethod("GET");
+                    connection.connect();
+                    responseCode = connection.getResponseCode();
+                }
+            }
+
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                Document document = Jsoup.connect(url).get();
+                Element faviconLink = document.select("link[rel~=(^|\\s)(shortcut|icon)(\\s|$)]").first();
+                if (faviconLink != null) {
+                    return faviconLink.attr("abs:href");
+                }
+            }
+        } catch (Exception e) {
+            log.warn("提取网站图标失败");
+        }
+        return null;
     }
 }
