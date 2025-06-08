@@ -9,7 +9,10 @@ import com.example.shortlink.project.dto.req.ShortLinkUpdateReqDTO;
 import com.example.shortlink.project.dto.resp.ShortLinkCountRespDTO;
 import com.example.shortlink.project.dto.resp.ShortLinkCreateRespDTO;
 import com.example.shortlink.project.dto.resp.ShortLinkPageRespDTO;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface ShortLinkService extends IService<ShortLinkDO> {
@@ -20,4 +23,6 @@ public interface ShortLinkService extends IService<ShortLinkDO> {
     List<ShortLinkCountRespDTO> countShortLink(List<String> gids);
 
     void updateShortLink(ShortLinkUpdateReqDTO shortLinkUpdateReqDTO);
+
+    void restoreShortUri(String shortLink, HttpServletResponse response, HttpServletRequest request) throws IOException;
 }
