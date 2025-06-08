@@ -31,6 +31,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -178,12 +179,12 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .eq(ShortLinkDO::getDelFlag, 0);
 
             ShortLinkDO shortLinkDO = baseMapper.selectOne(wrapper);
-            if (shortLinkDO != null) {
-                stringRedisTemplate.opsForValue().set(RedisCacheConstant.SHORT_URL_PREFIX + fullShortUrl, shortLinkDO.getOriginUrl());
-                response.sendRedirect(shortLinkDO.getOriginUrl());
-            } else {
+            if (shortLinkDO == null || (shortLinkDO.getValidDate() != null && shortLinkDO.getValidDate().before(new Date()))) {
                 // 缓存空标识
-                stringRedisTemplate.opsForValue().set(RedisCacheConstant.SHORT_URL_PREFIX + fullShortUrl, "-");
+                stringRedisTemplate.opsForValue().set(RedisCacheConstant.SHORT_URL_PREFIX + fullShortUrl, "-", 30, TimeUnit.SECONDS);
+            } else {
+                stringRedisTemplate.opsForValue().set(RedisCacheConstant.SHORT_URL_PREFIX + fullShortUrl, shortLinkDO.getOriginUrl(), LinkUtil.getShortLinkCacheTime(shortLinkDO.getValidDate()), TimeUnit.MILLISECONDS);
+                response.sendRedirect(shortLinkDO.getOriginUrl());
             }
         } finally {
             lock.unlock();
