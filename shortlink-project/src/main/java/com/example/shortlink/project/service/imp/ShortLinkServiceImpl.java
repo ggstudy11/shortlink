@@ -18,6 +18,7 @@ import com.example.shortlink.project.dto.resp.ShortLinkCreateRespDTO;
 import com.example.shortlink.project.dto.resp.ShortLinkPageRespDTO;
 import com.example.shortlink.project.service.ShortLinkService;
 import com.example.shortlink.project.utils.HashUtil;
+import com.example.shortlink.project.utils.LinkUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jodd.util.StringUtil;
@@ -32,6 +33,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,6 +59,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
 //            throw new ServiceException("短链接生成重复");
 //        }
         baseMapper.insert(shortLinkDO);
+        stringRedisTemplate.opsForValue().set(RedisCacheConstant.SHORT_URL_PREFIX + shortLinkDO.getFullShortUrl(), shortLinkDO.getOriginUrl(), LinkUtil.getShortLinkCacheTime(shortLinkDO.getValidDate()), TimeUnit.MILLISECONDS);
         shortUriCreateCachePenetrationBloomFilter.add(shortLinkDO.getFullShortUrl());
         return ShortLinkCreateRespDTO.builder()
                 .gid(shortLinkCreateReqDTO.getGid())
