@@ -142,9 +142,20 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     public void restoreShortUri(String shortLink, HttpServletResponse response, HttpServletRequest request) throws IOException {
         String domain = request.getServerName();
         String fullShortUrl = domain + '/' + shortLink;
+
+        // 缓存穿透
+        if (!shortUriCreateCachePenetrationBloomFilter.contains(fullShortUrl)) {
+            return;
+        }
+
+        // 不包含肯定不存在，但是存在也有误判情况，查一次缓存判断
         String originUrl = stringRedisTemplate.opsForValue().get(RedisCacheConstant.SHORT_URL_PREFIX + fullShortUrl);
 
         if (StringUtil.isNotBlank(originUrl)) {
+            // 空标识
+            if ("-".equals(originUrl)) {
+                return;
+            }
             response.sendRedirect(originUrl);
             return;
         }
@@ -167,6 +178,9 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             if (shortLinkDO != null) {
                 stringRedisTemplate.opsForValue().set(RedisCacheConstant.SHORT_URL_PREFIX + fullShortUrl, shortLinkDO.getOriginUrl());
                 response.sendRedirect(shortLinkDO.getOriginUrl());
+            } else {
+                // 缓存空标识
+                stringRedisTemplate.opsForValue().set(RedisCacheConstant.SHORT_URL_PREFIX + fullShortUrl, "-");
             }
         } finally {
             lock.unlock();
