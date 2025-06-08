@@ -9,6 +9,10 @@ spring:
       port: 6379
       password: 07030877
 
+  mvc:
+    view:
+      prefix: /templates/
+      suffix: .html
 
   datasource:
     # ShardingSphere 对 Driver 自定义，实现分库分表等隐藏逻辑
