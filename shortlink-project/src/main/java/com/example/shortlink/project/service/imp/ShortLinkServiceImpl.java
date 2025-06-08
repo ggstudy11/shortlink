@@ -149,6 +149,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
 
         // 缓存穿透
         if (!shortUriCreateCachePenetrationBloomFilter.contains(fullShortUrl)) {
+            response.sendRedirect("/page/notfound");
             return;
         }
 
@@ -158,6 +159,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         if (StringUtil.isNotBlank(originUrl)) {
             // 空标识
             if ("-".equals(originUrl)) {
+                response.sendRedirect("/page/notfound");
                 return;
             }
             response.sendRedirect(originUrl);
@@ -182,6 +184,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             if (shortLinkDO == null || (shortLinkDO.getValidDate() != null && shortLinkDO.getValidDate().before(new Date()))) {
                 // 缓存空标识
                 stringRedisTemplate.opsForValue().set(RedisCacheConstant.SHORT_URL_PREFIX + fullShortUrl, "-", 30, TimeUnit.SECONDS);
+                response.sendRedirect("/page/notfound");
             } else {
                 stringRedisTemplate.opsForValue().set(RedisCacheConstant.SHORT_URL_PREFIX + fullShortUrl, shortLinkDO.getOriginUrl(), LinkUtil.getShortLinkCacheTime(shortLinkDO.getValidDate()), TimeUnit.MILLISECONDS);
                 response.sendRedirect(shortLinkDO.getOriginUrl());
