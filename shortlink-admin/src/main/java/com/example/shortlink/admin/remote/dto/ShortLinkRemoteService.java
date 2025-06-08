@@ -45,4 +45,11 @@ public interface ShortLinkRemoteService {
         String jsonStr = HttpUtil.post(baseUrl + "/update", JSON.toJSONString(shortLinkUpdateReqDTO));
         return JSON.parseObject(jsonStr, new TypeReference<>(){});
     }
+
+    default Result<String> getTitle(String url) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("url", url);
+        String jsonStr = HttpUtil.get("http://localhost:8081/api/short-link/v1/url/title", params);
+        return JSON.parseObject(jsonStr, new TypeReference<>(){});
+    }
 }
