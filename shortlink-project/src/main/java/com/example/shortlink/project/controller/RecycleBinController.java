@@ -1,14 +1,14 @@
 package com.example.shortlink.project.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.example.shortlink.project.common.convention.result.Result;
 import com.example.shortlink.project.common.convention.result.Results;
+import com.example.shortlink.project.dto.req.ShortLinkInBinPageReqDTO;
 import com.example.shortlink.project.dto.req.ShortLinkToBinReqDTO;
+import com.example.shortlink.project.dto.resp.ShortLinkInBinPageRespDTO;
 import com.example.shortlink.project.service.RecycleBinService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,5 +21,10 @@ public class RecycleBinController {
     public Result<Void> removeToBin(@RequestBody ShortLinkToBinReqDTO shortLinkToBinReqDTO) {
         recycleBinService.removeToBin(shortLinkToBinReqDTO);
         return Results.success();
+    }
+
+    @GetMapping("/page")
+    public Result<IPage<ShortLinkInBinPageRespDTO>> pageInBin(ShortLinkInBinPageReqDTO shortLinkInBinPageReqDTO) {
+        return Results.success(recycleBinService.pageInBin(shortLinkInBinPageReqDTO));
     }
 }
