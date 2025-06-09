@@ -5,12 +5,10 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.TypeReference;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.example.shortlink.admin.common.convention.result.Result;
-import com.example.shortlink.admin.remote.dto.req.ShortLinkCreateReqDTO;
-import com.example.shortlink.admin.remote.dto.req.ShortLinkPageReqDTO;
-import com.example.shortlink.admin.remote.dto.req.ShortLinkToBinReqDTO;
-import com.example.shortlink.admin.remote.dto.req.ShortLinkUpdateReqDTO;
+import com.example.shortlink.admin.remote.dto.req.*;
 import com.example.shortlink.admin.remote.dto.resp.ShortLinkCountRespDTO;
 import com.example.shortlink.admin.remote.dto.resp.ShortLinkCreateRespDTO;
+import com.example.shortlink.admin.remote.dto.resp.ShortLinkInBinPageRespDTO;
 import com.example.shortlink.admin.remote.dto.resp.ShortLinkPageRespDTO;
 
 import java.util.HashMap;
@@ -58,6 +56,15 @@ public interface ShortLinkRemoteService {
 
     default Result<Void> removeToBin(ShortLinkToBinReqDTO shortLinkToBinReqDTO) {
         String jsonStr = HttpUtil.post(baseUrl, JSON.toJSONString(shortLinkToBinReqDTO));
+        return JSON.parseObject(jsonStr, new TypeReference<>(){});
+    }
+
+    default Result<IPage<ShortLinkInBinPageRespDTO>> pageInBin(ShortLinkInBinPageReqDTO shortLinkInBinPageReqDTO) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("gid", shortLinkInBinPageReqDTO.getGid());
+        params.put("current", shortLinkInBinPageReqDTO.getCurrent());
+        params.put("size", shortLinkInBinPageReqDTO.getSize());
+        String jsonStr = HttpUtil.get(recycleUrl + "/page", params);
         return JSON.parseObject(jsonStr, new TypeReference<>(){});
     }
 }
