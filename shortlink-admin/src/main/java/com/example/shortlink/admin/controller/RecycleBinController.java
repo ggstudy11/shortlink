@@ -3,6 +3,7 @@ package com.example.shortlink.admin.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.example.shortlink.admin.common.convention.result.Result;
 import com.example.shortlink.admin.remote.dto.ShortLinkRemoteService;
+import com.example.shortlink.admin.remote.dto.req.ShortLinkDeleteReqDTO;
 import com.example.shortlink.admin.remote.dto.req.ShortLinkInBinPageReqDTO;
 import com.example.shortlink.admin.remote.dto.req.ShortLinkRmBinReqDTO;
 import com.example.shortlink.admin.remote.dto.req.ShortLinkToBinReqDTO;
@@ -28,4 +29,10 @@ public class RecycleBinController {
     public Result<Void> removeFromBin(@RequestBody ShortLinkRmBinReqDTO shortLinkRmBinReqDTO) {
         return shortLinkRemoteService.removeFromBin(shortLinkRmBinReqDTO);
     }
+
+    @PostMapping("/delete")
+    public Result<Void> delete(@RequestBody ShortLinkDeleteReqDTO shortLinkDeleteReqDTO) {
+        return shortLinkRemoteService.deleteShortLink(shortLinkDeleteReqDTO);
+    }
+
 }
