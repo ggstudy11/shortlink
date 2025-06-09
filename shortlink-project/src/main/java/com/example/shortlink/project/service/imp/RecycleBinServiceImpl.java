@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.shortlink.project.common.constant.RedisCacheConstant;
 import com.example.shortlink.project.dao.entity.ShortLinkDO;
 import com.example.shortlink.project.dao.mapper.ShortLinkMapper;
+import com.example.shortlink.project.dto.req.ShortLinkDeleteReqDTO;
 import com.example.shortlink.project.dto.req.ShortLinkInBinPageReqDTO;
 import com.example.shortlink.project.dto.req.ShortLinkRmBinReqDTO;
 import com.example.shortlink.project.dto.req.ShortLinkToBinReqDTO;
@@ -61,5 +62,16 @@ public class RecycleBinServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLin
         shortLinkDO.setEnableStatus(1);
         baseMapper.update(shortLinkDO, wrapper);
         stringRedisTemplate.delete(RedisCacheConstant.SHORT_URL_PREFIX + shortLinkRmBinReqDTO.getFullShortUrl());
+    }
+
+    @Override
+    public void deleteShortLink(ShortLinkDeleteReqDTO shortLinkDeleteReqDTO) {
+
+        LambdaQueryWrapper<ShortLinkDO> wrapper = Wrappers.lambdaQuery(ShortLinkDO.class)
+                .eq(ShortLinkDO::getGid, shortLinkDeleteReqDTO.getGid())
+                .eq(ShortLinkDO::getFullShortUrl, shortLinkDeleteReqDTO.getFullShortUrl())
+                .eq(ShortLinkDO::getEnableStatus, 0)
+                .eq(ShortLinkDO::getDelFlag, 0);
+        baseMapper.delete(wrapper);
     }
 }
