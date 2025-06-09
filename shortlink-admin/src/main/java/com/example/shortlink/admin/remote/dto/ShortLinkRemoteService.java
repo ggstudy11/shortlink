@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.example.shortlink.admin.common.convention.result.Result;
 import com.example.shortlink.admin.remote.dto.req.ShortLinkCreateReqDTO;
 import com.example.shortlink.admin.remote.dto.req.ShortLinkPageReqDTO;
+import com.example.shortlink.admin.remote.dto.req.ShortLinkToBinReqDTO;
 import com.example.shortlink.admin.remote.dto.req.ShortLinkUpdateReqDTO;
 import com.example.shortlink.admin.remote.dto.resp.ShortLinkCountRespDTO;
 import com.example.shortlink.admin.remote.dto.resp.ShortLinkCreateRespDTO;
@@ -19,6 +20,8 @@ import java.util.Map;
 public interface ShortLinkRemoteService {
 
     String baseUrl = "http://localhost:8081/api/short-link/v1/link";
+    String urlUrl = "http://localhost:8081/api/short-link/v1/url";
+    String recycleUrl = "http://localhost:8081/api/short-link/v1/recycle-bin";
 
     default Result<ShortLinkCreateRespDTO> createShortLink(ShortLinkCreateReqDTO shortLinkCreateReqDTO) {
         String jsonStr = HttpUtil.post(baseUrl, JSON.toJSONString(shortLinkCreateReqDTO));
@@ -49,7 +52,12 @@ public interface ShortLinkRemoteService {
     default Result<String> getTitle(String url) {
         Map<String, Object> params = new HashMap<>();
         params.put("url", url);
-        String jsonStr = HttpUtil.get("http://localhost:8081/api/short-link/v1/url/title", params);
+        String jsonStr = HttpUtil.get(urlUrl + "/title", params);
+        return JSON.parseObject(jsonStr, new TypeReference<>(){});
+    }
+
+    default Result<Void> removeToBin(ShortLinkToBinReqDTO shortLinkToBinReqDTO) {
+        String jsonStr = HttpUtil.post(baseUrl, JSON.toJSONString(shortLinkToBinReqDTO));
         return JSON.parseObject(jsonStr, new TypeReference<>(){});
     }
 }
