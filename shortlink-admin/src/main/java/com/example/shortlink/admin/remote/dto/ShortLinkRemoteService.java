@@ -67,4 +67,9 @@ public interface ShortLinkRemoteService {
         String jsonStr = HttpUtil.get(recycleUrl + "/page", params);
         return JSON.parseObject(jsonStr, new TypeReference<>(){});
     }
+
+    default Result<Void> removeFromBin(ShortLinkRmBinReqDTO shortLinkRmBinReqDTO) {
+        String jsonStr = HttpUtil.post(recycleUrl + "/recover", JSON.toJSONString(shortLinkRmBinReqDTO));
+        return JSON.parseObject(jsonStr, new TypeReference<>(){});
+    }
 }
