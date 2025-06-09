@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.example.shortlink.project.common.convention.result.Result;
 import com.example.shortlink.project.common.convention.result.Results;
 import com.example.shortlink.project.dto.req.ShortLinkInBinPageReqDTO;
+import com.example.shortlink.project.dto.req.ShortLinkRmBinReqDTO;
 import com.example.shortlink.project.dto.req.ShortLinkToBinReqDTO;
 import com.example.shortlink.project.dto.resp.ShortLinkInBinPageRespDTO;
 import com.example.shortlink.project.service.RecycleBinService;
@@ -26,5 +27,11 @@ public class RecycleBinController {
     @GetMapping("/page")
     public Result<IPage<ShortLinkInBinPageRespDTO>> pageInBin(ShortLinkInBinPageReqDTO shortLinkInBinPageReqDTO) {
         return Results.success(recycleBinService.pageInBin(shortLinkInBinPageReqDTO));
+    }
+
+    @PostMapping("/recover")
+    public Result<Void> removeFromBin(@RequestBody ShortLinkRmBinReqDTO shortLinkRmBinReqDTO) {
+        recycleBinService.removeFromBin(shortLinkRmBinReqDTO);
+        return Results.success();
     }
 }

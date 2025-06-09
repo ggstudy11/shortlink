@@ -9,6 +9,7 @@ import com.example.shortlink.project.common.constant.RedisCacheConstant;
 import com.example.shortlink.project.dao.entity.ShortLinkDO;
 import com.example.shortlink.project.dao.mapper.ShortLinkMapper;
 import com.example.shortlink.project.dto.req.ShortLinkInBinPageReqDTO;
+import com.example.shortlink.project.dto.req.ShortLinkRmBinReqDTO;
 import com.example.shortlink.project.dto.req.ShortLinkToBinReqDTO;
 import com.example.shortlink.project.dto.resp.ShortLinkInBinPageRespDTO;
 import com.example.shortlink.project.service.RecycleBinService;
@@ -45,5 +46,20 @@ public class RecycleBinServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLin
 
         IPage<ShortLinkDO> pageResult = baseMapper.selectPage(shortLinkInBinPageReqDTO, wrapper);
         return pageResult.convert(each -> BeanUtil.toBean(each, ShortLinkInBinPageRespDTO.class));
+    }
+
+    @Override
+    public void removeFromBin(ShortLinkRmBinReqDTO shortLinkRmBinReqDTO) {
+
+        LambdaQueryWrapper<ShortLinkDO> wrapper = Wrappers.lambdaQuery(ShortLinkDO.class)
+                .eq(ShortLinkDO::getGid, shortLinkRmBinReqDTO.getGid())
+                .eq(ShortLinkDO::getFullShortUrl, shortLinkRmBinReqDTO.getFullShortUrl())
+                .eq(ShortLinkDO::getEnableStatus, 0)
+                .eq(ShortLinkDO::getDelFlag, 0);
+
+        ShortLinkDO shortLinkDO = new ShortLinkDO();
+        shortLinkDO.setEnableStatus(1);
+        baseMapper.update(shortLinkDO, wrapper);
+        stringRedisTemplate.delete(RedisCacheConstant.SHORT_URL_PREFIX + shortLinkRmBinReqDTO.getFullShortUrl());
     }
 }
