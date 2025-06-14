@@ -1,13 +1,24 @@
 package com.example.shortlink.project.utils;
 
+import cn.hutool.http.HttpUtil;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
+import com.example.shortlink.project.dao.entity.ShortLinkLocaleStatsDO;
+
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 
 public class LinkUtil {
 
     public static final long ONE_WEEK_MILLIS = 7 * 24 * 60 * 60 * 1000L;
+
+    public static final String BAIDU_URL = "https://api.map.baidu.com/location/ip?";
+
+    public static final String AK = "Rio8YC3Nr0EcoUMQW3MQIhGHjttGvPhx";
 
     /**
      * 获取短链接缓存过期时间戳
@@ -40,4 +51,42 @@ public class LinkUtil {
         }
     }
 
+    public static ShortLinkLocaleStatsDO getLocaleStats(String ip, String fullShortUrl) {
+        // 发送HTTP请求
+        Map<String, Object> params = new HashMap<>();
+        params.put("ip", ip);
+        params.put("ak", AK);
+        String jsonStr = HttpUtil.get(BAIDU_URL, params);
+
+        // 解析JSON结果
+        JSONObject jsonObject = JSON.parseObject(jsonStr);
+        int status = jsonObject.getIntValue("status");
+        ShortLinkLocaleStatsDO shortLinkLocaleStatsDO;
+        if (status == 0) { // 成功
+            JSONObject content = jsonObject.getJSONObject("content");
+            JSONObject addressDetail = content.getJSONObject("address_detail");
+
+            shortLinkLocaleStatsDO = ShortLinkLocaleStatsDO
+                    .builder()
+                    .adcode(addressDetail.getString("adcode"))
+                    .cnt(1)
+                    .date(new Date())
+                    .fullShortUrl(fullShortUrl)
+                    .province(addressDetail.getString("province"))
+                    .city(addressDetail.getString("city"))
+                    .build();
+        } else { // 失败
+            shortLinkLocaleStatsDO = ShortLinkLocaleStatsDO
+                .builder()
+                .adcode("未知")
+                .cnt(1)
+                .date(new Date())
+                .fullShortUrl(fullShortUrl)
+                .province("未知")
+                .city("未知")
+                .build();
+        }
+
+        return shortLinkLocaleStatsDO;
+    }
 }
