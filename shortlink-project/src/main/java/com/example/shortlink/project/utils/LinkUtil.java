@@ -195,6 +195,17 @@ public class LinkUtil {
         return ip;
     }
 
+    public static String getDevice(String userAgent) {
+        // 检查常见移动设备特征字符串
+        boolean isMobile = userAgent.contains("mobile") ||
+                userAgent.contains("android") ||
+                userAgent.contains("iphone") ||
+                userAgent.contains("ipad") ||
+                userAgent.contains("windows phone");
+
+        return isMobile ? "Mobile" : "PC";
+    }
+
     /**
      * 简单验证IP是否有效
      */
