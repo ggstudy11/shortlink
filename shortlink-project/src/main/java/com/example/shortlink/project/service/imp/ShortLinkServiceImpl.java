@@ -12,7 +12,9 @@ import com.example.shortlink.project.common.constant.RedisCacheConstant;
 import com.example.shortlink.project.common.convention.exception.ServiceException;
 import com.example.shortlink.project.dao.entity.ShortLinkAccessStatsDO;
 import com.example.shortlink.project.dao.entity.ShortLinkDO;
+import com.example.shortlink.project.dao.entity.ShortLinkLocaleStatsDO;
 import com.example.shortlink.project.dao.mapper.ShortLinkAccessStatsMapper;
+import com.example.shortlink.project.dao.mapper.ShortLinkLocaleStatsMapper;
 import com.example.shortlink.project.dao.mapper.ShortLinkMapper;
 import com.example.shortlink.project.dto.req.ShortLinkCreateReqDTO;
 import com.example.shortlink.project.dto.req.ShortLinkPageReqDTO;
@@ -54,6 +56,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private final StringRedisTemplate stringRedisTemplate;
     private final RedissonClient redissonClient;
     private final ShortLinkAccessStatsMapper shortLinkAccessStatsMapper;
+    private final ShortLinkLocaleStatsMapper shortLinkLocaleStatsMapper;
 
     @Override
     public ShortLinkCreateRespDTO create(ShortLinkCreateReqDTO shortLinkCreateReqDTO) {
@@ -249,6 +252,9 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .fullShortUrl(fullShortUrl)
                 .build();
         shortLinkAccessStatsMapper.insertOrUpdate(shortLinkAccessStatsDO);
+
+        ShortLinkLocaleStatsDO localeStats = LinkUtil.getLocaleStats(ip, fullShortUrl);
+        shortLinkLocaleStatsMapper.insertOrUpdate(localeStats);
     }
 
     private String generateSuffix(String domain, String originUrl) {
