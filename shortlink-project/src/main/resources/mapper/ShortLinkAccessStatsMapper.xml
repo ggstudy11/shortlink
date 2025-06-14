@@ -29,4 +29,13 @@
             AND full_short_url = #{param.fullShortUrl}
         GROUP BY date
     </select>
+
+    <select id="countStatsHour" parameterType="com.example.shortlink.project.dto.req.ShortLinkStatsReqDTO" resultType="com.example.shortlink.project.dto.resp.ShortLinkHourStatsRespDTO">
+        SELECT sum(pv) as pv, hour
+        FROM t_link_access_stats
+        WHERE
+            date BETWEEN #{param.startDate} AND #{param.endDate}
+          AND full_short_url = #{param.fullShortUrl}
+        GROUP BY hour
+    </select>
 </mapper>

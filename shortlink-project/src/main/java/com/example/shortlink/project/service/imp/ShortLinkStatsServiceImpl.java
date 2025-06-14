@@ -5,10 +5,7 @@ import cn.hutool.core.date.DateUtil;
 import com.example.shortlink.project.dao.mapper.ShortLinkAccessStatsMapper;
 import com.example.shortlink.project.dao.mapper.ShortLinkLocaleStatsMapper;
 import com.example.shortlink.project.dto.req.ShortLinkStatsReqDTO;
-import com.example.shortlink.project.dto.resp.ShortLinkBasicStatsRespDTO;
-import com.example.shortlink.project.dto.resp.ShortLinkStatsAccessDailyRespDTO;
-import com.example.shortlink.project.dto.resp.ShortLinkStatsLocaleCNRespDTO;
-import com.example.shortlink.project.dto.resp.ShortLinkStatsRespDTO;
+import com.example.shortlink.project.dto.resp.*;
 import com.example.shortlink.project.service.ShortLinkStatsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -60,12 +57,22 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
             each.setRatio(each.getCnt() * 1.0 / sum);
         });
 
+        /* 获取每小时访问数 */
+        List<ShortLinkHourStatsRespDTO> hourStatsList = shortLinkAccessStatsMapper.countStatsHour(shortLinkStatsReqDTO);
+        Map<Integer, Integer> hoursStatsMap = hourStatsList.stream().collect(Collectors.toMap(ShortLinkHourStatsRespDTO::getHour, ShortLinkHourStatsRespDTO::getPv));
+        List<Integer> hourStats = new ArrayList<>();
+        for (int i = 0; i < 24; ++i) {
+            Integer pv = hoursStatsMap.get(i);
+            hourStats.add(pv == null ? 0 : pv);
+        }
+
         return ShortLinkStatsRespDTO.builder()
                 .pv(shortLinkBasicStatsRespDTO.getPv())
                 .uv(shortLinkBasicStatsRespDTO.getUv())
                 .uip(shortLinkBasicStatsRespDTO.getUip())
                 .daily(daily)
                 .localeCnStats(localeCnStats)
+                .hourStats(hourStats)
                 .build();
     }
 }
