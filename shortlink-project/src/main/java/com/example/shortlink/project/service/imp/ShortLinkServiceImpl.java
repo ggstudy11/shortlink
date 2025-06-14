@@ -233,13 +233,16 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             response.addCookie(cookie);
         }
 
+        String ip = request.getRemoteAddr();
+        int newIp = stringRedisTemplate.opsForSet().add(RedisCacheConstant.FULL_SHORT_URL_UIP_PREFIX + fullShortUrl, ip).intValue();
+
         Date now = new Date();
         int hour = DateUtil.hour(now, true);
         int weekday = DateUtil.dayOfWeekEnum(now).getIso8601Value();
         ShortLinkAccessStatsDO shortLinkAccessStatsDO = ShortLinkAccessStatsDO.builder()
                 .uv(isNewVisitor ? 1 : 0)
                 .pv(1)
-                .uip(1)
+                .uip(newIp)
                 .date(now)
                 .hour(hour)
                 .weekday(weekday)
