@@ -206,6 +206,10 @@ public class LinkUtil {
         return isMobile ? "Mobile" : "PC";
     }
 
+    public static String getNetwork(HttpServletRequest request) {
+        String ip = getIp(request);
+        return ip.startsWith("192.168.") || ip.startsWith("10.") ? "WIFI" : "Mobile";
+    }
     /**
      * 简单验证IP是否有效
      */
