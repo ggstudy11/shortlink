@@ -10,14 +10,8 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.shortlink.project.common.constant.RedisCacheConstant;
 import com.example.shortlink.project.common.convention.exception.ServiceException;
-import com.example.shortlink.project.dao.entity.ShortLinkAccessStatsDO;
-import com.example.shortlink.project.dao.entity.ShortLinkDO;
-import com.example.shortlink.project.dao.entity.ShortLinkLocaleStatsDO;
-import com.example.shortlink.project.dao.entity.ShortLinkOsStatsDO;
-import com.example.shortlink.project.dao.mapper.ShortLinkAccessStatsMapper;
-import com.example.shortlink.project.dao.mapper.ShortLinkLocaleStatsMapper;
-import com.example.shortlink.project.dao.mapper.ShortLinkMapper;
-import com.example.shortlink.project.dao.mapper.ShortLinkOsStatsMapper;
+import com.example.shortlink.project.dao.entity.*;
+import com.example.shortlink.project.dao.mapper.*;
 import com.example.shortlink.project.dto.req.ShortLinkCreateReqDTO;
 import com.example.shortlink.project.dto.req.ShortLinkPageReqDTO;
 import com.example.shortlink.project.dto.req.ShortLinkUpdateReqDTO;
@@ -60,6 +54,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private final ShortLinkAccessStatsMapper shortLinkAccessStatsMapper;
     private final ShortLinkLocaleStatsMapper shortLinkLocaleStatsMapper;
     private final ShortLinkOsStatsMapper shortLinkOsStatsMapper;
+    private final ShortLinkBrowserStatsMapper shortLinkBrowserStatsMapper;
 
     @Override
     public ShortLinkCreateRespDTO create(ShortLinkCreateReqDTO shortLinkCreateReqDTO) {
@@ -259,7 +254,9 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         ShortLinkLocaleStatsDO localeStats = LinkUtil.getLocaleStats(ip, fullShortUrl);
         shortLinkLocaleStatsMapper.insertOrUpdate(localeStats);
 
-        String os = LinkUtil.parseOperatingSystem(request.getHeader("User-Agent"));
+        String userAgent = request.getHeader("User-Agent");
+
+        String os = LinkUtil.getOperatingSystem(userAgent);
         ShortLinkOsStatsDO shortLinkOsStatsDO = ShortLinkOsStatsDO.builder()
                 .os(os)
                 .cnt(1)
@@ -268,6 +265,14 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .build();
         shortLinkOsStatsMapper.insertOrUpdate(shortLinkOsStatsDO);
 
+        String browser = LinkUtil.getBrowser(userAgent);
+        ShortLinkBrowserStatsDO shortLinkBrowserStatsDO = ShortLinkBrowserStatsDO.builder()
+                .cnt(1)
+                .fullShortUrl(fullShortUrl)
+                .date(now)
+                .browser(browser)
+                .build();
+        shortLinkBrowserStatsMapper.insertOrUpdate(shortLinkBrowserStatsDO);
     }
 
     private String generateSuffix(String domain, String originUrl) {
