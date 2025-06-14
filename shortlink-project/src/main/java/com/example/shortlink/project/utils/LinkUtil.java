@@ -4,6 +4,7 @@ import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.example.shortlink.project.dao.entity.ShortLinkLocaleStatsDO;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -165,5 +166,39 @@ public class LinkUtil {
         }
 
         return "Unknown";
+    }
+
+    public static String getIp(HttpServletRequest request) {
+
+        if (request == null) {
+            return "unknown";
+        }
+
+        String ip = request.getHeader("x-forwarded-for");
+        if (isValidIp(ip)) {
+            return ip.split(",")[0]; // 取第一个非代理IP
+        }
+
+        ip = request.getHeader("Proxy-Client-IP");
+        if (isValidIp(ip)) return ip;
+
+        ip = request.getHeader("X-Real-IP");
+        if (isValidIp(ip)) return ip;
+
+        ip = request.getRemoteAddr(); // 最后取原始IP
+
+        // 转换IPv6回环地址为IPv4
+        if ("0:0:0:0:0:0:0:1".equals(ip)) {
+            return "127.0.0.1";
+        }
+
+        return ip;
+    }
+
+    /**
+     * 简单验证IP是否有效
+     */
+    private static boolean isValidIp(String ip) {
+        return ip != null && !ip.trim().isEmpty() && !"unknown".equalsIgnoreCase(ip);
     }
 }
