@@ -18,29 +18,28 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.List;
 
-@RequestMapping("/api/short-link/v1/link")
 @RestController
 @RequiredArgsConstructor
 public class ShortLinkController {
 
     private final ShortLinkService shortLinkService;
 
-    @PostMapping
+    @PostMapping("/api/short-link/v1/link")
     public Result<ShortLinkCreateRespDTO> createShortLink(@RequestBody ShortLinkCreateReqDTO shortLinkCreateReqDTO) {
         return Results.success(shortLinkService.create(shortLinkCreateReqDTO));
     }
 
-    @GetMapping("/page")
+    @GetMapping("/api/short-link/v1/link/page")
     public Result<IPage<ShortLinkPageRespDTO>> pageShortLink(ShortLinkPageReqDTO shortLinkPageReqDTO) {
         return Results.success(shortLinkService.pageShortLink(shortLinkPageReqDTO));
     }
 
-    @GetMapping("/count")
+    @GetMapping("/api/short-link/v1/link/count")
     public Result<List<ShortLinkCountRespDTO>> countShortLink(@RequestParam("gids") List<String> gids) {
         return Results.success(shortLinkService.countShortLink(gids));
     }
 
-    @PostMapping("/update")
+    @PostMapping("/api/short-link/v1/link/update")
     public Result<Void> updateShortLink(@RequestBody ShortLinkUpdateReqDTO shortLinkUpdateReqDTO) {
         shortLinkService.updateShortLink(shortLinkUpdateReqDTO);
         return Results.success();
