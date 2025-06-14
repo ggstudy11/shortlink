@@ -3,9 +3,11 @@ package com.example.shortlink.project.service.imp;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateUtil;
 import com.example.shortlink.project.dao.mapper.ShortLinkAccessStatsMapper;
+import com.example.shortlink.project.dao.mapper.ShortLinkLocaleStatsMapper;
 import com.example.shortlink.project.dto.req.ShortLinkStatsReqDTO;
 import com.example.shortlink.project.dto.resp.ShortLinkBasicStatsRespDTO;
 import com.example.shortlink.project.dto.resp.ShortLinkStatsAccessDailyRespDTO;
+import com.example.shortlink.project.dto.resp.ShortLinkStatsLocaleCNRespDTO;
 import com.example.shortlink.project.dto.resp.ShortLinkStatsRespDTO;
 import com.example.shortlink.project.service.ShortLinkStatsService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
 
     private final ShortLinkAccessStatsMapper shortLinkAccessStatsMapper;
+    private final ShortLinkLocaleStatsMapper shortLinkLocaleStatsMapper;
 
     @Override
     public ShortLinkStatsRespDTO getLinkStats(ShortLinkStatsReqDTO shortLinkStatsReqDTO) {
@@ -50,12 +53,19 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
             daily.add(shortLinkStatsAccessDailyRespDTO);
         }
 
+        /* 获取地区统计数据 */
+        List<ShortLinkStatsLocaleCNRespDTO> localeCnStats = shortLinkLocaleStatsMapper.countStats(shortLinkStatsReqDTO);
+        int sum = localeCnStats.stream().mapToInt(ShortLinkStatsLocaleCNRespDTO::getCnt).sum();
+        localeCnStats.forEach(each -> {
+            each.setRatio(each.getCnt() * 1.0 / sum);
+        });
 
         return ShortLinkStatsRespDTO.builder()
                 .pv(shortLinkBasicStatsRespDTO.getPv())
                 .uv(shortLinkBasicStatsRespDTO.getUv())
                 .uip(shortLinkBasicStatsRespDTO.getUip())
                 .daily(daily)
+                .localeCnStats(localeCnStats)
                 .build();
     }
 }
