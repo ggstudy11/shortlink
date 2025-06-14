@@ -56,6 +56,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private final ShortLinkOsStatsMapper shortLinkOsStatsMapper;
     private final ShortLinkBrowserStatsMapper shortLinkBrowserStatsMapper;
     private final ShortLinkAccessLogsMapper shortLinkAccessLogsMapper;
+    private final ShortLinkDeviceStatsMapper shortLinkDeviceStatsMapper;
 
 
     @Override
@@ -284,6 +285,15 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .user(uvCookie)
             .build();
         shortLinkAccessLogsMapper.insert(shortLinkAccessLogsDO);
+
+        String device = LinkUtil.getDevice(userAgent);
+        ShortLinkDeviceStatsDO shortLinkDeviceStatsDO = ShortLinkDeviceStatsDO.builder()
+                .device(device)
+                .fullShortUrl(fullShortUrl)
+                .cnt(1)
+                .date(now)
+                .build();
+        shortLinkDeviceStatsMapper.insertOrUpdate(shortLinkDeviceStatsDO);
     }
 
     private String generateSuffix(String domain, String originUrl) {
