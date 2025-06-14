@@ -20,4 +20,13 @@
             date BETWEEN #{param.startDate} AND #{param.endDate}
             AND full_short_url = #{param.fullShortUrl}
     </select>
+
+    <select id="countStatsDaily" parameterType="com.example.shortlink.project.dto.req.ShortLinkStatsReqDTO" resultType="com.example.shortlink.project.dto.resp.ShortLinkStatsAccessDailyRespDTO">
+        SELECT SUM(pv) as pv, SUM(uv) as uv, SUM(uip) as uip, date
+        FROM t_link_access_stats
+        WHERE
+            date BETWEEN #{param.startDate} AND #{param.endDate}
+            AND full_short_url = #{param.fullShortUrl}
+        GROUP BY date
+    </select>
 </mapper>
