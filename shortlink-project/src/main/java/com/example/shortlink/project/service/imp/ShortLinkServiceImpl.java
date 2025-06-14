@@ -55,6 +55,8 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private final ShortLinkLocaleStatsMapper shortLinkLocaleStatsMapper;
     private final ShortLinkOsStatsMapper shortLinkOsStatsMapper;
     private final ShortLinkBrowserStatsMapper shortLinkBrowserStatsMapper;
+    private final ShortLinkAccessLogsMapper shortLinkAccessLogsMapper;
+
 
     @Override
     public ShortLinkCreateRespDTO create(ShortLinkCreateReqDTO shortLinkCreateReqDTO) {
@@ -215,18 +217,18 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private void recordStats(String fullShortUrl, HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
         boolean isNewVisitor = true;
-
+        String uvCookie = UUID.fastUUID().toString();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if ("uv".equals(cookie.getName())) {
                     isNewVisitor = false;
+                    uvCookie = cookie.getValue();
                     break;
                 }
             }
         }
 
         if (isNewVisitor) {
-            String uvCookie = UUID.fastUUID().toString();
             Cookie cookie = new Cookie("uv", uvCookie);
             cookie.setPath(fullShortUrl.substring(fullShortUrl.indexOf("/")));
             // 一个月
@@ -234,7 +236,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             response.addCookie(cookie);
         }
 
-        String ip = request.getRemoteAddr();
+        String ip = LinkUtil.getIp(request);
         int newIp = stringRedisTemplate.opsForSet().add(RedisCacheConstant.FULL_SHORT_URL_UIP_PREFIX + fullShortUrl, ip).intValue();
 
         Date now = new Date();
@@ -273,6 +275,15 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .browser(browser)
                 .build();
         shortLinkBrowserStatsMapper.insertOrUpdate(shortLinkBrowserStatsDO);
+
+        ShortLinkAccessLogsDO shortLinkAccessLogsDO = ShortLinkAccessLogsDO.builder()
+                .fullShortUrl(fullShortUrl)
+                .ip(ip)
+                .os(os)
+                .browser(browser)
+                .user(uvCookie)
+            .build();
+        shortLinkAccessLogsMapper.insert(shortLinkAccessLogsDO);
     }
 
     private String generateSuffix(String domain, String originUrl) {
