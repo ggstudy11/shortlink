@@ -78,15 +78,56 @@ public class LinkUtil {
         } else { // 失败
             shortLinkLocaleStatsDO = ShortLinkLocaleStatsDO
                 .builder()
-                .adcode("未知")
+                .adcode("Unknown")
                 .cnt(1)
                 .date(new Date())
                 .fullShortUrl(fullShortUrl)
-                .province("未知")
-                .city("未知")
+                .province("Unknown")
+                .city("Unknown")
                 .build();
         }
 
         return shortLinkLocaleStatsDO;
+    }
+
+    public static String parseOperatingSystem(String userAgent) {
+        if (userAgent == null) return "Unknown";
+
+        // Windows
+        if (userAgent.contains("Windows NT 10.0")) return "Windows 10";
+        if (userAgent.contains("Windows NT 6.3")) return "Windows 8.1";
+        if (userAgent.contains("Windows NT 6.2")) return "Windows 8";
+        if (userAgent.contains("Windows NT 6.1")) return "Windows 7";
+        if (userAgent.contains("Windows NT 6.0")) return "Windows Vista";
+        if (userAgent.contains("Windows NT 5.1")) return "Windows XP";
+
+        // macOS
+        if (userAgent.contains("Macintosh")) {
+            if (userAgent.contains("Intel Mac OS X 10_15")) return "macOS Catalina";
+            if (userAgent.contains("Intel Mac OS X 10_14")) return "macOS Mojave";
+            // 其他版本...
+            return "macOS";
+        }
+
+        // Linux
+        if (userAgent.contains("Linux")) {
+            if (userAgent.contains("Ubuntu")) return "Ubuntu";
+            if (userAgent.contains("Fedora")) return "Fedora";
+            return "Linux";
+        }
+
+        // iOS
+        if (userAgent.contains("iPhone")) return "iOS (iPhone)";
+        if (userAgent.contains("iPad")) return "iOS (iPad)";
+
+        // Android
+        if (userAgent.contains("Android")) {
+            int start = userAgent.indexOf("Android") + 8;
+            int end = userAgent.indexOf(";", start);
+            if (end == -1) end = userAgent.length();
+            return "Android " + userAgent.substring(start, end).trim();
+        }
+
+        return "Unknown";
     }
 }
