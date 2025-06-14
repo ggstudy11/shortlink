@@ -90,7 +90,7 @@ public class LinkUtil {
         return shortLinkLocaleStatsDO;
     }
 
-    public static String parseOperatingSystem(String userAgent) {
+    public static String getOperatingSystem(String userAgent) {
         if (userAgent == null) return "Unknown";
 
         // Windows
@@ -126,6 +126,42 @@ public class LinkUtil {
             int end = userAgent.indexOf(";", start);
             if (end == -1) end = userAgent.length();
             return "Android " + userAgent.substring(start, end).trim();
+        }
+
+        return "Unknown";
+    }
+
+    public static String getBrowser(String userAgent) {
+        if (userAgent == null) return "Unknown";
+
+        // Chrome
+        if (userAgent.contains("Chrome") && !userAgent.contains("Edge")) {
+            return "Chrome";
+        }
+
+        // Firefox
+        if (userAgent.contains("Firefox")) {
+            return "Firefox";
+        }
+
+        // Safari
+        if (userAgent.contains("Safari") && !userAgent.contains("Chrome")) {
+            return "Safari";
+        }
+
+        // Edge
+        if (userAgent.contains("Edge")) {
+            return "Edge";
+        }
+
+        // Internet Explorer
+        if (userAgent.contains("MSIE") || userAgent.contains("Trident")) {
+            return "Internet Explorer";
+        }
+
+        // Opera
+        if (userAgent.contains("Opera") || userAgent.contains("OPR")) {
+            return "Opera";
         }
 
         return "Unknown";
