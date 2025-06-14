@@ -1,6 +1,8 @@
 package com.example.shortlink.project.service.imp;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.lang.UUID;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -8,7 +10,9 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.shortlink.project.common.constant.RedisCacheConstant;
 import com.example.shortlink.project.common.convention.exception.ServiceException;
+import com.example.shortlink.project.dao.entity.ShortLinkAccessStatsDO;
 import com.example.shortlink.project.dao.entity.ShortLinkDO;
+import com.example.shortlink.project.dao.mapper.ShortLinkAccessStatsMapper;
 import com.example.shortlink.project.dao.mapper.ShortLinkMapper;
 import com.example.shortlink.project.dto.req.ShortLinkCreateReqDTO;
 import com.example.shortlink.project.dto.req.ShortLinkPageReqDTO;
@@ -19,6 +23,7 @@ import com.example.shortlink.project.dto.resp.ShortLinkPageRespDTO;
 import com.example.shortlink.project.service.ShortLinkService;
 import com.example.shortlink.project.utils.HashUtil;
 import com.example.shortlink.project.utils.LinkUtil;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jodd.util.StringUtil;
@@ -48,6 +53,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private final RBloomFilter<String> shortUriCreateCachePenetrationBloomFilter;
     private final StringRedisTemplate stringRedisTemplate;
     private final RedissonClient redissonClient;
+    private final ShortLinkAccessStatsMapper shortLinkAccessStatsMapper;
 
     @Override
     public ShortLinkCreateRespDTO create(ShortLinkCreateReqDTO shortLinkCreateReqDTO) {
@@ -152,6 +158,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     @Override
     public void restoreShortUri(String shortLink, HttpServletResponse response, HttpServletRequest request) throws IOException {
         String domain = request.getServerName();
+
         String fullShortUrl = domain + '/' + shortLink;
 
         // 缓存穿透
@@ -169,6 +176,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 response.sendRedirect("/page/notfound");
                 return;
             }
+            recordStats(fullShortUrl, request, response);
             response.sendRedirect(originUrl);
             return;
         }
@@ -178,6 +186,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         try {
             originUrl = stringRedisTemplate.opsForValue().get(RedisCacheConstant.SHORT_URL_PREFIX + fullShortUrl);
             if (StringUtil.isNotBlank(originUrl)) {
+                recordStats(fullShortUrl, request, response);
                 response.sendRedirect(originUrl);
                 return;
             }
@@ -194,11 +203,49 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 response.sendRedirect("/page/notfound");
             } else {
                 stringRedisTemplate.opsForValue().set(RedisCacheConstant.SHORT_URL_PREFIX + fullShortUrl, shortLinkDO.getOriginUrl(), LinkUtil.getShortLinkCacheTime(shortLinkDO.getValidDate()), TimeUnit.MILLISECONDS);
+                recordStats(fullShortUrl, request, response);
                 response.sendRedirect(shortLinkDO.getOriginUrl());
             }
         } finally {
             lock.unlock();
         }
+    }
+
+    private void recordStats(String fullShortUrl, HttpServletRequest request, HttpServletResponse response) {
+        Cookie[] cookies = request.getCookies();
+        boolean isNewVisitor = true;
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("uv".equals(cookie.getName())) {
+                    isNewVisitor = false;
+                    break;
+                }
+            }
+        }
+
+        if (isNewVisitor) {
+            String uvCookie = UUID.fastUUID().toString();
+            Cookie cookie = new Cookie("uv", uvCookie);
+            cookie.setPath(fullShortUrl.substring(fullShortUrl.indexOf("/")));
+            // 一个月
+            cookie.setMaxAge(60 * 60 * 24 * 30);
+            response.addCookie(cookie);
+        }
+
+        Date now = new Date();
+        int hour = DateUtil.hour(now, true);
+        int weekday = DateUtil.dayOfWeekEnum(now).getIso8601Value();
+        ShortLinkAccessStatsDO shortLinkAccessStatsDO = ShortLinkAccessStatsDO.builder()
+                .uv(isNewVisitor ? 1 : 0)
+                .pv(1)
+                .uip(1)
+                .date(now)
+                .hour(hour)
+                .weekday(weekday)
+                .fullShortUrl(fullShortUrl)
+                .build();
+        shortLinkAccessStatsMapper.insertOrUpdate(shortLinkAccessStatsDO);
     }
 
     private String generateSuffix(String domain, String originUrl) {

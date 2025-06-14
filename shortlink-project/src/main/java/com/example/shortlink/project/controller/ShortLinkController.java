@@ -44,7 +44,7 @@ public class ShortLinkController {
         shortLinkService.updateShortLink(shortLinkUpdateReqDTO);
         return Results.success();
     }
-
+    
     @GetMapping("/{shortLink}")
     public void restoreShortUri(@PathVariable String shortLink, HttpServletResponse response, HttpServletRequest request) throws IOException {
         shortLinkService.restoreShortUri(shortLink, response, request);
