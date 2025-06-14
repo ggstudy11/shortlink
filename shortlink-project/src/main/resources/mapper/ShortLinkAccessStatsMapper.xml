@@ -12,4 +12,12 @@
             uv = uv + #{stats.uv},
             uip = uip + #{stats.uip}
     </insert>
+
+    <select id="countBasicStats" parameterType="com.example.shortlink.project.dto.req.ShortLinkStatsReqDTO" resultType="com.example.shortlink.project.dto.resp.ShortLinkBasicStatsRespDTO">
+        SELECT SUM(pv) as pv, SUM(uv) as uv, SUM(uip) as uip
+        FROM t_link_access_stats
+        WHERE
+            date BETWEEN #{param.startDate} AND #{param.endDate}
+            AND full_short_url = #{param.fullShortUrl}
+    </select>
 </mapper>
