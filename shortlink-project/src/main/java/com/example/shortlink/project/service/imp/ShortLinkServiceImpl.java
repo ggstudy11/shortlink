@@ -57,6 +57,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private final ShortLinkBrowserStatsMapper shortLinkBrowserStatsMapper;
     private final ShortLinkAccessLogsMapper shortLinkAccessLogsMapper;
     private final ShortLinkDeviceStatsMapper shortLinkDeviceStatsMapper;
+    private final ShortLinkNetworkStatsMapper shortLinkNetworkStatsMapper;
 
 
     @Override
@@ -294,6 +295,15 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .date(now)
                 .build();
         shortLinkDeviceStatsMapper.insertOrUpdate(shortLinkDeviceStatsDO);
+
+        String network = LinkUtil.getNetwork(request);
+        ShortLinkNetworkStatsDO shortLinkNetworkStatsDO = ShortLinkNetworkStatsDO.builder()
+                .cnt(1)
+                .fullShortUrl(fullShortUrl)
+                .network(network)
+                .date(now)
+                .build();
+        shortLinkNetworkStatsMapper.insertOrUpdate(shortLinkNetworkStatsDO);
     }
 
     private String generateSuffix(String domain, String originUrl) {
