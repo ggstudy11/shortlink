@@ -244,8 +244,9 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         Date now = new Date();
         int hour = DateUtil.hour(now, true);
         int weekday = DateUtil.dayOfWeekEnum(now).getIso8601Value();
+        int uv = isNewVisitor ? 1 : 0;
         ShortLinkAccessStatsDO shortLinkAccessStatsDO = ShortLinkAccessStatsDO.builder()
-                .uv(isNewVisitor ? 1 : 0)
+                .uv(uv)
                 .pv(1)
                 .uip(newIp)
                 .date(now)
@@ -309,6 +310,8 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .locale(locale)
                 .build();
         shortLinkAccessLogsMapper.insert(shortLinkAccessLogsDO);
+
+        baseMapper.increStats(fullShortUrl, uv, 1, newIp);
     }
 
     private String generateSuffix(String domain, String originUrl) {
