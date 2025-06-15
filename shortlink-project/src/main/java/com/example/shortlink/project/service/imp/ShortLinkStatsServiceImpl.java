@@ -2,10 +2,7 @@ package com.example.shortlink.project.service.imp;
 
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateUtil;
-import com.example.shortlink.project.dao.mapper.ShortLinkAccessLogsMapper;
-import com.example.shortlink.project.dao.mapper.ShortLinkAccessStatsMapper;
-import com.example.shortlink.project.dao.mapper.ShortLinkBrowserStatsMapper;
-import com.example.shortlink.project.dao.mapper.ShortLinkLocaleStatsMapper;
+import com.example.shortlink.project.dao.mapper.*;
 import com.example.shortlink.project.dto.req.ShortLinkStatsReqDTO;
 import com.example.shortlink.project.dto.resp.*;
 import com.example.shortlink.project.service.ShortLinkStatsService;
@@ -27,6 +24,7 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
     private final ShortLinkLocaleStatsMapper shortLinkLocaleStatsMapper;
     private final ShortLinkAccessLogsMapper shortLinkAccessLogsMapper;
     private final ShortLinkBrowserStatsMapper shortLinkBrowserStatsMapper;
+    private final ShortLinkOsStatsMapper shortLinkOsStatsMapper;
 
     @Override
     public ShortLinkStatsRespDTO getLinkStats(ShortLinkStatsReqDTO shortLinkStatsReqDTO) {
@@ -101,6 +99,20 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
             each.setRatio(ratio);
         });
 
+        /* 操作系统访问详情 */
+        List<ShortLinkStatsOsRespDTO> osStats = shortLinkOsStatsMapper.getOsStats(shortLinkStatsReqDTO);
+        int sumOfOs = osStats.stream().mapToInt(ShortLinkStatsOsRespDTO::getCnt).sum();
+        osStats.forEach(each -> {
+            double ratio = BigDecimal.valueOf(each.getCnt())
+                    .divide(BigDecimal.valueOf(sumOfOs), 4, RoundingMode.HALF_UP)  // 中间计算保留4位
+                    .setScale(2, RoundingMode.HALF_UP)  // 最终结果保留2位
+                    .doubleValue();
+
+            each.setRatio(ratio);
+        });
+
+        /* 访客类型详情 */
+
 
         return ShortLinkStatsRespDTO.builder()
                 .pv(shortLinkBasicStatsRespDTO.getPv())
@@ -112,6 +124,7 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
                 .topIpStats(topIpStats)
                 .weekdayStats(weekdayStats)
                 .browserStats(browserStats)
+                .osStats(osStats)
                 .build();
     }
 }
