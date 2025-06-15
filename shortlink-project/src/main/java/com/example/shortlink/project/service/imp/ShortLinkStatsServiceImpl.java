@@ -2,6 +2,7 @@ package com.example.shortlink.project.service.imp;
 
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateUtil;
+import com.example.shortlink.project.dao.mapper.ShortLinkAccessLogsMapper;
 import com.example.shortlink.project.dao.mapper.ShortLinkAccessStatsMapper;
 import com.example.shortlink.project.dao.mapper.ShortLinkLocaleStatsMapper;
 import com.example.shortlink.project.dto.req.ShortLinkStatsReqDTO;
@@ -21,6 +22,7 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
 
     private final ShortLinkAccessStatsMapper shortLinkAccessStatsMapper;
     private final ShortLinkLocaleStatsMapper shortLinkLocaleStatsMapper;
+    private final ShortLinkAccessLogsMapper shortLinkAccessLogsMapper;
 
     @Override
     public ShortLinkStatsRespDTO getLinkStats(ShortLinkStatsReqDTO shortLinkStatsReqDTO) {
@@ -67,6 +69,7 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
         }
 
         /* 高频ip访问数 */
+        List<ShortLinkStatsTopIpRespDTO> topIpStats = shortLinkAccessLogsMapper.getTopIp(shortLinkStatsReqDTO);
 
         /* 星期访问数 */
         List<ShortLinkDayStatsRespDTO> daysList = shortLinkAccessStatsMapper.countStatsDay(shortLinkStatsReqDTO);
@@ -86,6 +89,7 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
                 .localeCnStats(localeCnStats)
                 .hourStats(hourStats)
                 .weekdayStats(weekdayStats)
+                .topIpStats(topIpStats)
                 .build();
     }
 }

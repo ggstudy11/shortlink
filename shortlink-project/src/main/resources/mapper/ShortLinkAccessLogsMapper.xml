@@ -2,5 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.shortlink.project.dao.mapper.ShortLinkAccessLogsMapper">
-
+    <select id="getTopIp" parameterType="com.example.shortlink.project.dto.req.ShortLinkStatsReqDTO" resultType="com.example.shortlink.project.dto.resp.ShortLinkStatsTopIpRespDTO">
+        SELECT ip, COUNT(1) as cnt
+        FROM t_link_access_logs
+        WHERE
+          full_short_url = #{param.fullShortUrl}
+          AND create_time BETWEEN #{param.startDate} AND #{param.endDate}
+        GROUP BY ip
+        ORDER BY cnt DESC
+        LIMIT 10;
+    </select>
 </mapper>
