@@ -26,6 +26,7 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
     private final ShortLinkBrowserStatsMapper shortLinkBrowserStatsMapper;
     private final ShortLinkOsStatsMapper shortLinkOsStatsMapper;
     private final ShortLinkDeviceStatsMapper shortLinkDeviceStatsMapper;
+    private final ShortLinkNetworkStatsMapper shortLinkNetworkStatsMapper;
 
     @Override
     public ShortLinkStatsRespDTO getLinkStats(ShortLinkStatsReqDTO shortLinkStatsReqDTO) {
@@ -135,6 +136,18 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
             each.setRatio(ratio);
         });
 
+        List<ShortLinkStatsNetworkRespDTO> networkStats = shortLinkNetworkStatsMapper.getNetworkStats(shortLinkStatsReqDTO);
+        int sumOfNetwork = networkStats.stream().mapToInt(ShortLinkStatsNetworkRespDTO::getCnt).sum();
+        networkStats.forEach(each -> {
+            double ratio = BigDecimal.valueOf(each.getCnt())
+                    .divide(BigDecimal.valueOf(sumOfNetwork), 4, RoundingMode.HALF_UP)  // 中间计算保留4位
+                    .setScale(2, RoundingMode.HALF_UP)  // 最终结果保留2位
+                    .doubleValue();
+
+            each.setRatio(ratio);
+        });
+
+
         return ShortLinkStatsRespDTO.builder()
                 .pv(shortLinkBasicStatsRespDTO.getPv())
                 .uv(shortLinkBasicStatsRespDTO.getUv())
@@ -148,6 +161,7 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
                 .osStats(osStats)
                 .uvTypeStats(uvStats)
                 .deviceStats(deviceStats)
+                .networkStats(networkStats)
                 .build();
     }
 }
