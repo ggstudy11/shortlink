@@ -14,7 +14,9 @@
     </insert>
 
     <select id="countBasicStats" parameterType="com.example.shortlink.project.dto.req.ShortLinkStatsReqDTO" resultType="com.example.shortlink.project.dto.resp.ShortLinkBasicStatsRespDTO">
-        SELECT SUM(pv) as pv, SUM(uv) as uv, SUM(uip) as uip
+        SELECT COALESCE(SUM(pv), 0) as pv,
+               COALESCE(SUM(uv), 0) as uv,
+               COALESCE(SUM(uip), 0) as uip
         FROM t_link_access_stats
         WHERE
             date BETWEEN #{param.startDate} AND #{param.endDate}
