@@ -3,10 +3,7 @@ package com.example.shortlink.project.dao.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.example.shortlink.project.dao.entity.ShortLinkAccessStatsDO;
 import com.example.shortlink.project.dto.req.ShortLinkStatsReqDTO;
-import com.example.shortlink.project.dto.resp.ShortLinkBasicStatsRespDTO;
-import com.example.shortlink.project.dto.resp.ShortLinkDayStatsRespDTO;
-import com.example.shortlink.project.dto.resp.ShortLinkHourStatsRespDTO;
-import com.example.shortlink.project.dto.resp.ShortLinkStatsAccessDailyRespDTO;
+import com.example.shortlink.project.dto.resp.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
