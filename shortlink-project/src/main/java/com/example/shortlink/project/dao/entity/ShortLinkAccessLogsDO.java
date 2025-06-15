@@ -23,4 +23,10 @@ public class ShortLinkAccessLogsDO extends BaseDO {
     private String os;
 
     private String ip;
+
+    private String network;
+
+    private String locale;
+
+    private String device;
 }

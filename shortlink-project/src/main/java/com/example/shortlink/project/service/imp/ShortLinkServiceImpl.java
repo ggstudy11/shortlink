@@ -278,15 +278,6 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .build();
         shortLinkBrowserStatsMapper.insertOrUpdate(shortLinkBrowserStatsDO);
 
-        ShortLinkAccessLogsDO shortLinkAccessLogsDO = ShortLinkAccessLogsDO.builder()
-                .fullShortUrl(fullShortUrl)
-                .ip(ip)
-                .os(os)
-                .browser(browser)
-                .user(uvCookie)
-            .build();
-        shortLinkAccessLogsMapper.insert(shortLinkAccessLogsDO);
-
         String device = LinkUtil.getDevice(userAgent);
         ShortLinkDeviceStatsDO shortLinkDeviceStatsDO = ShortLinkDeviceStatsDO.builder()
                 .device(device)
@@ -304,6 +295,20 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .date(now)
                 .build();
         shortLinkNetworkStatsMapper.insertOrUpdate(shortLinkNetworkStatsDO);
+
+        String locale = localeStats.getProvince() + "-" + localeStats.getCity();
+        locale = localeStats.getProvince().equals("Unknown") ? "Unknown-" + locale : "中国-" + locale;
+        ShortLinkAccessLogsDO shortLinkAccessLogsDO = ShortLinkAccessLogsDO.builder()
+                .fullShortUrl(fullShortUrl)
+                .ip(ip)
+                .os(os)
+                .browser(browser)
+                .user(uvCookie)
+                .device(device)
+                .network(network)
+                .locale(locale)
+                .build();
+        shortLinkAccessLogsMapper.insert(shortLinkAccessLogsDO);
     }
 
     private String generateSuffix(String domain, String originUrl) {
