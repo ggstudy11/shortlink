@@ -6,8 +6,10 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.example.shortlink.project.dao.entity.ShortLinkAccessLogsDO;
+import com.example.shortlink.project.dao.entity.ShortLinkDO;
 import com.example.shortlink.project.dao.mapper.*;
 import com.example.shortlink.project.dto.req.ShortLinkAccessReqDTO;
+import com.example.shortlink.project.dto.req.ShortLinkGroupStatsReqDTO;
 import com.example.shortlink.project.dto.req.ShortLinkStatsReqDTO;
 import com.example.shortlink.project.dto.resp.*;
 import com.example.shortlink.project.service.ShortLinkStatsService;
@@ -33,6 +35,7 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
     private final ShortLinkOsStatsMapper shortLinkOsStatsMapper;
     private final ShortLinkDeviceStatsMapper shortLinkDeviceStatsMapper;
     private final ShortLinkNetworkStatsMapper shortLinkNetworkStatsMapper;
+    private final ShortLinkMapper shortLinkMapper;
 
     @Override
     public ShortLinkStatsRespDTO getLinkStats(ShortLinkStatsReqDTO shortLinkStatsReqDTO) {
@@ -187,5 +190,23 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
             shortLinkAccessRespDTO.setUvType(uvType);
             return shortLinkAccessRespDTO;
         });
+    }
+
+    @Override
+    public List<ShortLinkStatsRespDTO> getGroupStats(ShortLinkGroupStatsReqDTO shortLinkGroupStatsReqDTO) {
+        LambdaQueryWrapper<ShortLinkDO> wrapper = Wrappers.lambdaQuery(ShortLinkDO.class)
+                .eq(ShortLinkDO::getDelFlag, 0)
+                .eq(ShortLinkDO::getEnableStatus, 1)
+                .eq(ShortLinkDO::getGid, shortLinkGroupStatsReqDTO.getGid());
+        List<ShortLinkDO> shortLinkDOList = shortLinkMapper.selectList(wrapper);
+        List<ShortLinkStatsRespDTO> groupStats = new ArrayList<>();
+        for (ShortLinkDO shortLinkDO : shortLinkDOList) {
+            ShortLinkStatsReqDTO shortLinkStatsReqDTO = new ShortLinkStatsReqDTO();
+            BeanUtils.copyProperties(shortLinkGroupStatsReqDTO, shortLinkStatsReqDTO);
+            shortLinkStatsReqDTO.setFullShortUrl(shortLinkDO.getFullShortUrl());
+            ShortLinkStatsRespDTO linkStats = this.getLinkStats(shortLinkStatsReqDTO);
+            groupStats.add(linkStats);
+        }
+        return groupStats;
     }
 }
