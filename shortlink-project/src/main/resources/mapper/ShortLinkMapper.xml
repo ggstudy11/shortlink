@@ -10,4 +10,41 @@
             total_uip = total_uip + #{uip}
         WHERE full_short_url = #{fullShortUrl}
     </update>
+
+    <select id="pageShortLink" resultType="com.example.shortlink.project.dto.resp.ShortLinkPageRespDTO">
+        SELECT
+            t1.*,
+            COALESCE(SUM(t2.pv), 0) AS today_pv,
+            COALESCE(SUM(t2.uv), 0) AS today_uv,
+            COALESCE(SUM(t2.uip), 0) AS today_uip
+        FROM
+            t_link AS t1 LEFT JOIN t_link_access_stats AS t2 ON t2.full_short_url = t1.full_short_url AND t2.date = CURDATE()
+        WHERE
+            t1.gid = #{dto.gid}
+        GROUP BY t1.id
+        ORDER BY
+        <choose>
+            <when test="dto.orderTag == 'todayPv'">
+                today_pv DESC
+            </when>
+            <when test="dto.orderTag == 'todayUv'">
+                today_uv DESC
+            </when>
+            <when test="dto.orderTag == 'todayUip'">
+                today_uip DESC
+            </when>
+            <when test="dto.orderTag == 'totalPv'">
+                total_pv DESC
+            </when>
+            <when test="dto.orderTag == 'totalUv'">
+                total_uv DESC
+            </when>
+            <when test="dto.orderTag == 'totalUip'">
+                total_uip DESC
+            </when>
+            <otherwise>
+                create_time DESC
+            </otherwise>
+        </choose>
+    </select>
 </mapper>
