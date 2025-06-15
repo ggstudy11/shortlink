@@ -10,4 +10,12 @@
             update_time = NOW(),
             cnt = cnt + #{stats.cnt}
     </insert>
+    <select id="getDeviceStats" parameterType="com.example.shortlink.project.dto.req.ShortLinkStatsReqDTO" resultType="com.example.shortlink.project.dto.resp.ShortLinkStatsDeviceRespDTO">
+        SELECT SUM(cnt) as cnt, device
+        FROM t_link_device_stats
+        WHERE
+            full_short_url = #{param.fullShortUrl}
+            AND date BETWEEN #{param.startDate} AND #{param.endDate}
+        GROUP BY device
+    </select>
 </mapper>
