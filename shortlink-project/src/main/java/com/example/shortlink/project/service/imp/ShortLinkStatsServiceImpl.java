@@ -2,11 +2,17 @@ package com.example.shortlink.project.service.imp;
 
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.example.shortlink.project.dao.entity.ShortLinkAccessLogsDO;
 import com.example.shortlink.project.dao.mapper.*;
+import com.example.shortlink.project.dto.req.ShortLinkAccessReqDTO;
 import com.example.shortlink.project.dto.req.ShortLinkStatsReqDTO;
 import com.example.shortlink.project.dto.resp.*;
 import com.example.shortlink.project.service.ShortLinkStatsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -163,5 +169,23 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
                 .deviceStats(deviceStats)
                 .networkStats(networkStats)
                 .build();
+    }
+
+    @Override
+    public IPage<ShortLinkAccessRespDTO> pageAccess(ShortLinkAccessReqDTO shortLinkAccessReqDTO) {
+        LambdaQueryWrapper<ShortLinkAccessLogsDO> wrapper = Wrappers.lambdaQuery(ShortLinkAccessLogsDO.class)
+                .eq(ShortLinkAccessLogsDO::getFullShortUrl, shortLinkAccessReqDTO.getFullShortUrl())
+                .eq(ShortLinkAccessLogsDO::getDelFlag, 0)
+                .between(ShortLinkAccessLogsDO::getCreateTime, shortLinkAccessReqDTO.getStartDate(), shortLinkAccessReqDTO.getEndDate());
+
+        IPage<ShortLinkAccessLogsDO> page = shortLinkAccessLogsMapper.selectPage(shortLinkAccessReqDTO, wrapper);
+
+        return page.convert(each -> {
+            ShortLinkAccessRespDTO shortLinkAccessRespDTO = new ShortLinkAccessRespDTO();
+            BeanUtils.copyProperties(each, shortLinkAccessRespDTO);
+            String uvType = shortLinkAccessLogsMapper.getUvTypeByUser(each.getUser(), shortLinkAccessReqDTO.getStartDate(), shortLinkAccessReqDTO.getEndDate());
+            shortLinkAccessRespDTO.setUvType(uvType);
+            return shortLinkAccessRespDTO;
+        });
     }
 }

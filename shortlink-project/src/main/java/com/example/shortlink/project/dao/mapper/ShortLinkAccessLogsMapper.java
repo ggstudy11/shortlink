@@ -16,4 +16,6 @@ public interface ShortLinkAccessLogsMapper extends BaseMapper<ShortLinkAccessLog
     List<ShortLinkStatsTopIpRespDTO> getTopIp(@Param("param") ShortLinkStatsReqDTO param);
 
     List<ShortLinkStatsUvRespDTO> getUvStats(@Param("param") ShortLinkStatsReqDTO param);
+
+    String getUvTypeByUser(@Param("user") String user, @Param("startDate") String startDate, @Param("endDate") String endDate);
 }

@@ -29,4 +29,17 @@
             create_time BETWEEN #{param.startDate} AND #{param.endDate}
         GROUP BY uvType
     </select>
+    <select id="getUvTypeByUser" resultType="java.lang.String">
+        SELECT DISTINCT CASE WHEN first_visit &lt; #{startDate} THEN 'oldVisitor'
+                    WHEN first_visit BETWEEN #{startDate} AND #{endDate} THEN 'newVisitor'
+               END as uvType
+        FROM t_link_access_logs main
+        JOIN (
+            SELECT  user, MIN(create_time) as first_visit
+            FROM t_link_access_logs
+            WHERE user = #{user}
+        ) user_first_visit ON main.user = user_first_visit.user
+        WHERE
+        create_time BETWEEN #{startDate} AND #{endDate}
+    </select>
 </mapper>
