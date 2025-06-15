@@ -43,7 +43,7 @@ public class ShortLinkStatsRespDTO {
     /* 访客类型访问详情 */
     private List<ShortLinkStatsUvRespDTO> uvTypeStats;
 
-    /* 设别类型访问详情 */
+    /* 设备类型访问详情 */
     private List<ShortLinkStatsDeviceRespDTO> deviceStats;
 
     /* 网络类型访问详情 */
