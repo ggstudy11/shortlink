@@ -112,7 +112,16 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
         });
 
         /* 访客类型详情 */
+        List<ShortLinkStatsUvRespDTO> uvStats = shortLinkAccessLogsMapper.getUvStats(shortLinkStatsReqDTO);
+        int sumOfUv = uvStats.stream().mapToInt(ShortLinkStatsUvRespDTO::getCnt).sum();
+        uvStats.forEach(each -> {
+            double ratio = BigDecimal.valueOf(each.getCnt())
+                    .divide(BigDecimal.valueOf(sumOfUv), 4, RoundingMode.HALF_UP)  // 中间计算保留4位
+                    .setScale(2, RoundingMode.HALF_UP)  // 最终结果保留2位
+                    .doubleValue();
 
+            each.setRatio(ratio);
+        });
 
         return ShortLinkStatsRespDTO.builder()
                 .pv(shortLinkBasicStatsRespDTO.getPv())
@@ -125,6 +134,7 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
                 .weekdayStats(weekdayStats)
                 .browserStats(browserStats)
                 .osStats(osStats)
+                .uvTypeStats(uvStats)
                 .build();
     }
 }
