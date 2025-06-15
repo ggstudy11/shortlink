@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.example.shortlink.project.dao.entity.ShortLinkAccessStatsDO;
 import com.example.shortlink.project.dto.req.ShortLinkStatsReqDTO;
 import com.example.shortlink.project.dto.resp.ShortLinkBasicStatsRespDTO;
+import com.example.shortlink.project.dto.resp.ShortLinkDayStatsRespDTO;
 import com.example.shortlink.project.dto.resp.ShortLinkHourStatsRespDTO;
 import com.example.shortlink.project.dto.resp.ShortLinkStatsAccessDailyRespDTO;
 import org.apache.ibatis.annotations.Mapper;
@@ -21,4 +22,6 @@ public interface ShortLinkAccessStatsMapper extends BaseMapper<ShortLinkAccessSt
     List<ShortLinkStatsAccessDailyRespDTO> countStatsDaily(@Param("param") ShortLinkStatsReqDTO param);
 
     List<ShortLinkHourStatsRespDTO> countStatsHour(@Param("param") ShortLinkStatsReqDTO param);
+
+    List<ShortLinkDayStatsRespDTO> countStatsDay(@Param("param")ShortLinkStatsReqDTO param);
 }

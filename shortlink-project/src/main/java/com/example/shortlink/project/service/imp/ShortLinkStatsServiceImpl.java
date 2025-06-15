@@ -66,6 +66,18 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
             hourStats.add(pv == null ? 0 : pv);
         }
 
+        /* 高频ip访问数 */
+
+        /* 星期访问数 */
+        List<ShortLinkDayStatsRespDTO> daysList = shortLinkAccessStatsMapper.countStatsDay(shortLinkStatsReqDTO);
+        Map<Integer, Integer> daysMap = daysList.stream().collect(Collectors.toMap(ShortLinkDayStatsRespDTO::getWeekday, ShortLinkDayStatsRespDTO::getPv));
+        List<Integer> weekdayStats = new ArrayList<>();
+        for (int i = 1; i <= 7; ++i) {
+            Integer pv = daysMap.get(i);
+            weekdayStats.add(pv == null ? 0 : pv);
+        }
+
+
         return ShortLinkStatsRespDTO.builder()
                 .pv(shortLinkBasicStatsRespDTO.getPv())
                 .uv(shortLinkBasicStatsRespDTO.getUv())
@@ -73,6 +85,7 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
                 .daily(daily)
                 .localeCnStats(localeCnStats)
                 .hourStats(hourStats)
+                .weekdayStats(weekdayStats)
                 .build();
     }
 }
