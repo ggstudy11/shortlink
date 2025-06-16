@@ -19,7 +19,6 @@ import com.example.shortlink.project.dto.req.ShortLinkUpdateReqDTO;
 import com.example.shortlink.project.dto.resp.ShortLinkCountRespDTO;
 import com.example.shortlink.project.dto.resp.ShortLinkCreateRespDTO;
 import com.example.shortlink.project.dto.resp.ShortLinkPageRespDTO;
-import com.example.shortlink.project.dto.resp.ShortLinkTodayStatsRespDTO;
 import com.example.shortlink.project.service.ShortLinkService;
 import com.example.shortlink.project.utils.HashUtil;
 import com.example.shortlink.project.utils.LinkUtil;
@@ -64,9 +63,9 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
 
     @Override
     public ShortLinkCreateRespDTO create(ShortLinkCreateReqDTO shortLinkCreateReqDTO) {
-        String shortLinkSuffix = generateSuffix(shortLinkCreateReqDTO.getDomain(), shortLinkCreateReqDTO.getOriginUrl());
+        String shortLinkSuffix = generateSuffix("localhost:8081", shortLinkCreateReqDTO.getOriginUrl());
         ShortLinkDO shortLinkDO = BeanUtil.toBean(shortLinkCreateReqDTO, ShortLinkDO.class);
-        shortLinkDO.setFullShortUrl(shortLinkCreateReqDTO.getDomain() + "/" + shortLinkSuffix);
+        shortLinkDO.setFullShortUrl("localhost:8081" + "/" + shortLinkSuffix);
         shortLinkDO.setShortUri(shortLinkSuffix);
         shortLinkDO.setEnableStatus(1);
         shortLinkDO.setFavicon(getFavicon(shortLinkCreateReqDTO.getOriginUrl()));
@@ -164,8 +163,8 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     @Override
     public void restoreShortUri(String shortLink, HttpServletResponse response, HttpServletRequest request) throws IOException {
         String domain = request.getServerName();
-
-        String fullShortUrl = domain + '/' + shortLink;
+        String port = request.getServerPort() == 80 ? "" : ":" + request.getServerPort();
+        String fullShortUrl = domain + port +  '/' + shortLink;
 
         // 缓存穿透
         if (!shortUriCreateCachePenetrationBloomFilter.contains(fullShortUrl)) {
