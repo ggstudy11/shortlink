@@ -115,7 +115,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         }
 
         if (stringRedisTemplate.hasKey(RedisCacheConstant.LOGIN_USER + userDO.getUsername())) {
-            throw new ClientException(UserErrorCode.USER_ALREADY_LOGIN);
+            /* 如果用户已经登陆了就返回token */
+            String token = stringRedisTemplate.opsForHash().entries(RedisCacheConstant.LOGIN_USER + userDO.getUsername()).keySet()
+                    .stream().findFirst()
+                    .map(Object::toString)
+                    .orElseThrow(() -> new ClientException("用户登陆异常"));
+
+            return new UserLoginRespDTO(token);
         }
 
         String token = UUID.randomUUID().toString();
