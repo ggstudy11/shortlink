@@ -158,6 +158,9 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         } else {
             throw new RuntimeException("短链接记录不存在");
         }
+
+        /* 无论如何更新后删除缓存即可防止某些修改后仍能跳转的情况 */
+        stringRedisTemplate.delete(RedisCacheConstant.SHORT_URL_PREFIX + shortLinkUpdateReqDTO.getFullShortUrl());
     }
 
     @Override
