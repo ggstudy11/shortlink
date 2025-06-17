@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.shortlink.admin.common.biz.user.UserContext;
+import com.example.shortlink.admin.common.convention.exception.ClientException;
 import com.example.shortlink.admin.dao.entity.GroupDO;
 import com.example.shortlink.admin.dao.mapper.GroupMapper;
 import com.example.shortlink.admin.dto.req.GroupAddReqDTO;
@@ -34,6 +35,17 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
 
     @Override
     public void save(String name, String username) {
+
+        LambdaQueryWrapper<GroupDO> wrapper = Wrappers.lambdaQuery(GroupDO.class)
+                .eq(GroupDO::getUsername, username)
+                .eq(GroupDO::getDelFlag, 0);
+
+        List<GroupDO> groupDOList = baseMapper.selectList(wrapper);
+
+        if (groupDOList != null && groupDOList.size() == 10) {
+            throw new ClientException("已创建分组数达到上限");
+        }
+
         String gid;
         do {
             gid = RandomGenerator.generate();
