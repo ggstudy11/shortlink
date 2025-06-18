@@ -34,6 +34,7 @@ import org.redisson.api.RBloomFilter;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -69,23 +70,22 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         shortLinkDO.setShortUri(shortLinkSuffix);
         shortLinkDO.setEnableStatus(1);
         shortLinkDO.setFavicon(getFavicon(shortLinkCreateReqDTO.getOriginUrl()));
+        shortLinkDO.setDomain("localhost:8081");
         /* 这里应该是有问题的 */
 
-//        try {
-//            baseMapper.insert(shortLinkDO);
-//        } catch (DuplicateKeyException e) {
-//            throw new ServiceException("短链接生成重复");
-//        }
-
-        baseMapper.insert(shortLinkDO);
-        stringRedisTemplate.opsForValue().set(RedisCacheConstant.SHORT_URL_PREFIX + shortLinkDO.getFullShortUrl(), shortLinkDO.getOriginUrl(), LinkUtil.getShortLinkCacheTime(shortLinkDO.getValidDate()), TimeUnit.MILLISECONDS);
-        shortUriCreateCachePenetrationBloomFilter.add(shortLinkDO.getFullShortUrl());
-        return ShortLinkCreateRespDTO.builder()
-                .gid(shortLinkCreateReqDTO.getGid())
-                .fullShortLink(shortLinkDO.getFullShortUrl())
-                .originUrl(shortLinkCreateReqDTO.getOriginUrl())
-                .favicon(shortLinkDO.getFavicon())
-                .build();
+        try {
+            baseMapper.insert(shortLinkDO);
+            stringRedisTemplate.opsForValue().set(RedisCacheConstant.SHORT_URL_PREFIX + shortLinkDO.getFullShortUrl(), shortLinkDO.getOriginUrl(), LinkUtil.getShortLinkCacheTime(shortLinkDO.getValidDate()), TimeUnit.MILLISECONDS);
+            shortUriCreateCachePenetrationBloomFilter.add(shortLinkDO.getFullShortUrl());
+            return ShortLinkCreateRespDTO.builder()
+                    .gid(shortLinkCreateReqDTO.getGid())
+                    .fullShortLink(shortLinkDO.getFullShortUrl())
+                    .originUrl(shortLinkCreateReqDTO.getOriginUrl())
+                    .favicon(shortLinkDO.getFavicon())
+                    .build();
+        } catch (DuplicateKeyException e) {
+            throw new ServiceException("短链接生成重复");
+        }
     }
 
     @Override
