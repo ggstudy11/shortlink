@@ -2,6 +2,7 @@ package com.example.shortlink.project.mq.consumer;
 
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson2.JSON;
+import com.example.shortlink.project.common.constant.RedisCacheConstant;
 import com.example.shortlink.project.common.convention.exception.AbstractException;
 import com.example.shortlink.project.dao.entity.*;
 import com.example.shortlink.project.dao.mapper.*;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -30,6 +32,7 @@ public class StatsConsumer {
     private final ShortLinkNetworkStatsMapper shortLinkNetworkStatsMapper;
     private final ShortLinkOsStatsMapper shortLinkOsStatsMapper;
     private final ShortLinkMapper shortLinkMapper;
+    private final StringRedisTemplate stringRedisTemplate;
 
     @RabbitListener(queues = "stats.queue")
     public void processMessage(Message message, Channel channel) throws IOException {
@@ -38,6 +41,13 @@ public class StatsConsumer {
         try {
             String payload = new String(message.getBody(), StandardCharsets.UTF_8);
             log.info("收到信息:{}", payload);
+
+            Long add = stringRedisTemplate.opsForSet().add(RedisCacheConstant.SHORT_URL_STATS_UNIQUE_MESSAGE, message.getMessageProperties().getCorrelationId());
+            if (add == null || add == 0) {
+                log.info("消息重复消费");
+                channel.basicAck(deliveryTag, false);
+                return;
+            }
 
             StatsMessage statsMessage = JSON.parseObject(payload, StatsMessage.class);
             saveAccessStats(statsMessage);
