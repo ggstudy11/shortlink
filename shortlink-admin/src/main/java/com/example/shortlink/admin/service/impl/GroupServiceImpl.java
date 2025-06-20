@@ -1,6 +1,8 @@
 package com.example.shortlink.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import lombok.RequiredArgsConstructor;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -24,9 +26,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implements GroupService {
 
-    private static final ShortLinkRemoteService shortLinkRemoteService = new ShortLinkRemoteService() {};
+    private final ShortLinkRemoteService shortLinkRemoteService;
 
     @Override
     public void save(GroupAddReqDTO groupAddReqDTO) {

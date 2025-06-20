@@ -1,6 +1,7 @@
 package com.example.shortlink.admin.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
+
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.shortlink.admin.common.convention.result.Result;
 import com.example.shortlink.admin.remote.dto.ShortLinkRemoteService;
 import com.example.shortlink.admin.remote.dto.req.ShortLinkCreateReqDTO;
@@ -16,10 +17,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/short-link/v1/link")
 public class ShortLinkController {
 
-    private static final ShortLinkRemoteService shortLinkRemoteService = new ShortLinkRemoteService() {};
+    private final ShortLinkRemoteService shortLinkRemoteService;
 
     @GetMapping("/page")
-    public Result<IPage<ShortLinkPageRespDTO>> pageShortLink(ShortLinkPageReqDTO shortLinkPageReqDTO) {
+    public Result<Page<ShortLinkPageRespDTO>> pageShortLink(ShortLinkPageReqDTO shortLinkPageReqDTO) {
         return shortLinkRemoteService.pageShortLink(shortLinkPageReqDTO);
     }
 

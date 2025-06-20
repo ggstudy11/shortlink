@@ -1,6 +1,7 @@
 package com.example.shortlink.admin.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
+
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.shortlink.admin.common.convention.result.Result;
 import com.example.shortlink.admin.remote.dto.ShortLinkRemoteService;
 import com.example.shortlink.admin.remote.dto.req.ShortLinkDeleteReqDTO;
@@ -8,12 +9,17 @@ import com.example.shortlink.admin.remote.dto.req.ShortLinkInBinPageReqDTO;
 import com.example.shortlink.admin.remote.dto.req.ShortLinkRmBinReqDTO;
 import com.example.shortlink.admin.remote.dto.req.ShortLinkToBinReqDTO;
 import com.example.shortlink.admin.remote.dto.resp.ShortLinkInBinPageRespDTO;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/short-link/v1/recycle-bin")
+@RequiredArgsConstructor
 public class RecycleBinController {
-    public static final ShortLinkRemoteService shortLinkRemoteService = new ShortLinkRemoteService() {};
+    
+    private final ShortLinkRemoteService shortLinkRemoteService;
 
     @PostMapping
     public Result<Void> removeToBin(@RequestBody ShortLinkToBinReqDTO shortLinkToBinReqDTO) {
@@ -21,7 +27,7 @@ public class RecycleBinController {
     }
 
     @GetMapping("/page")
-    public Result<IPage<ShortLinkInBinPageRespDTO>> page(ShortLinkInBinPageReqDTO shortLinkInBinPageReqDTO) {
+    public Result<Page<ShortLinkInBinPageRespDTO>> page(ShortLinkInBinPageReqDTO shortLinkInBinPageReqDTO) {
         return shortLinkRemoteService.pageInBin(shortLinkInBinPageReqDTO);
     }
 
