@@ -3,6 +3,9 @@ server:
 
 
 spring:
+  application:
+    name: admin-service
+    
   datasource:
     # ShardingSphere 对 Driver 自定义，实现分库分表等隐藏逻辑
     driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
@@ -14,6 +17,11 @@ spring:
       host: 8.153.102.70
       port: 6379
       password: 07030877
+
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 49.234.192.196:8848
 
 auth:
   excludeUrls:
