@@ -19,6 +19,8 @@ import com.example.shortlink.project.dto.req.ShortLinkUpdateReqDTO;
 import com.example.shortlink.project.dto.resp.ShortLinkCountRespDTO;
 import com.example.shortlink.project.dto.resp.ShortLinkCreateRespDTO;
 import com.example.shortlink.project.dto.resp.ShortLinkPageRespDTO;
+import com.example.shortlink.project.mq.message.StatsMessage;
+import com.example.shortlink.project.mq.producer.StatsProducer;
 import com.example.shortlink.project.service.ShortLinkService;
 import com.example.shortlink.project.utils.HashUtil;
 import com.example.shortlink.project.utils.LinkUtil;
@@ -60,6 +62,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private final ShortLinkAccessLogsMapper shortLinkAccessLogsMapper;
     private final ShortLinkDeviceStatsMapper shortLinkDeviceStatsMapper;
     private final ShortLinkNetworkStatsMapper shortLinkNetworkStatsMapper;
+    private final StatsProducer statsProducer;
 
 
     @Override
@@ -220,6 +223,8 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     }
 
     private void recordStats(String fullShortUrl, HttpServletRequest request, HttpServletResponse response) {
+
+        /* 发送消息异步处理 */
         Cookie[] cookies = request.getCookies();
         boolean isNewVisitor = true;
         String uvCookie = UUID.fastUUID().toString();
@@ -243,78 +248,34 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
 
         String ip = LinkUtil.getIp(request);
         int newIp = stringRedisTemplate.opsForSet().add(RedisCacheConstant.FULL_SHORT_URL_UIP_PREFIX + fullShortUrl, ip).intValue();
-
         Date now = new Date();
         int hour = DateUtil.hour(now, true);
         int weekday = DateUtil.dayOfWeekEnum(now).getIso8601Value();
         int uv = isNewVisitor ? 1 : 0;
-        ShortLinkAccessStatsDO shortLinkAccessStatsDO = ShortLinkAccessStatsDO.builder()
-                .uv(uv)
-                .pv(1)
-                .uip(newIp)
-                .date(now)
-                .hour(hour)
-                .weekday(weekday)
-                .fullShortUrl(fullShortUrl)
-                .build();
-        shortLinkAccessStatsMapper.insertOrUpdate(shortLinkAccessStatsDO);
-
         ShortLinkLocaleStatsDO localeStats = LinkUtil.getLocaleStats(ip, fullShortUrl);
-        shortLinkLocaleStatsMapper.insertOrUpdate(localeStats);
-
         String userAgent = request.getHeader("User-Agent");
-
         String os = LinkUtil.getOperatingSystem(userAgent);
-        ShortLinkOsStatsDO shortLinkOsStatsDO = ShortLinkOsStatsDO.builder()
-                .os(os)
-                .cnt(1)
-                .fullShortUrl(fullShortUrl)
-                .date(now)
-                .build();
-        shortLinkOsStatsMapper.insertOrUpdate(shortLinkOsStatsDO);
-
         String browser = LinkUtil.getBrowser(userAgent);
-        ShortLinkBrowserStatsDO shortLinkBrowserStatsDO = ShortLinkBrowserStatsDO.builder()
-                .cnt(1)
-                .fullShortUrl(fullShortUrl)
-                .date(now)
-                .browser(browser)
-                .build();
-        shortLinkBrowserStatsMapper.insertOrUpdate(shortLinkBrowserStatsDO);
-
         String device = LinkUtil.getDevice(userAgent);
-        ShortLinkDeviceStatsDO shortLinkDeviceStatsDO = ShortLinkDeviceStatsDO.builder()
-                .device(device)
-                .fullShortUrl(fullShortUrl)
-                .cnt(1)
-                .date(now)
-                .build();
-        shortLinkDeviceStatsMapper.insertOrUpdate(shortLinkDeviceStatsDO);
-
         String network = LinkUtil.getNetwork(request);
-        ShortLinkNetworkStatsDO shortLinkNetworkStatsDO = ShortLinkNetworkStatsDO.builder()
-                .cnt(1)
-                .fullShortUrl(fullShortUrl)
-                .network(network)
-                .date(now)
-                .build();
-        shortLinkNetworkStatsMapper.insertOrUpdate(shortLinkNetworkStatsDO);
-
         String locale = localeStats.getProvince() + "-" + localeStats.getCity();
         locale = localeStats.getProvince().equals("Unknown") ? "Unknown-" + locale : "中国-" + locale;
-        ShortLinkAccessLogsDO shortLinkAccessLogsDO = ShortLinkAccessLogsDO.builder()
+        StatsMessage statsMessage = StatsMessage.builder()
+                .uv(uv)
+                .newIp(newIp)
+                .now(now)
                 .fullShortUrl(fullShortUrl)
-                .ip(ip)
                 .os(os)
                 .browser(browser)
-                .user(uvCookie)
                 .device(device)
                 .network(network)
-                .locale(locale)
+                .user(uvCookie)
+                .adcode(localeStats.getAdcode())
+                .province(localeStats.getProvince())
+                .city(localeStats.getCity())
+                .ip(ip)
                 .build();
-        shortLinkAccessLogsMapper.insert(shortLinkAccessLogsDO);
-
-        baseMapper.increStats(fullShortUrl, uv, 1, newIp);
+        statsProducer.sendMessage(statsMessage);
     }
 
     private String generateSuffix(String domain, String originUrl) {
