@@ -3,6 +3,9 @@ server:
 
 
 spring:
+  application:
+    name: project-service
+
   data:
     redis:
       host: 8.153.102.70
@@ -19,6 +22,28 @@ spring:
     driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
     # ShardingSphere 配置文件路径
     url: jdbc:shardingsphere:classpath:shardingsphere-config.yaml
+
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 49.234.192.196:8848
+
+
+  rabbitmq:
+    host: 8.153.102.70
+    port: 5672
+    username: admin
+    password: admin
+
+    listener:
+      simple:
+        retry:
+          enabled: true          # 启用重试
+          max-attempts: 3        # 最大重试次数
+          initial-interval: 1000ms  # 初始重试间隔
+          multiplier: 2.0        # 间隔倍数
+        acknowledge-mode: manual
+
 
 
 mybatis-plus:
