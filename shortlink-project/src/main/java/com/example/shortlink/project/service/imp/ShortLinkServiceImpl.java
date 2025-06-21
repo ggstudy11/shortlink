@@ -55,13 +55,6 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private final RBloomFilter<String> shortUriCreateCachePenetrationBloomFilter;
     private final StringRedisTemplate stringRedisTemplate;
     private final RedissonClient redissonClient;
-    private final ShortLinkAccessStatsMapper shortLinkAccessStatsMapper;
-    private final ShortLinkLocaleStatsMapper shortLinkLocaleStatsMapper;
-    private final ShortLinkOsStatsMapper shortLinkOsStatsMapper;
-    private final ShortLinkBrowserStatsMapper shortLinkBrowserStatsMapper;
-    private final ShortLinkAccessLogsMapper shortLinkAccessLogsMapper;
-    private final ShortLinkDeviceStatsMapper shortLinkDeviceStatsMapper;
-    private final ShortLinkNetworkStatsMapper shortLinkNetworkStatsMapper;
     private final StatsProducer statsProducer;
 
 
