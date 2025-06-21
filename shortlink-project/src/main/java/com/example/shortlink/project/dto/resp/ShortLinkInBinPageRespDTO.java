@@ -39,4 +39,10 @@ public class ShortLinkInBinPageRespDTO {
     private Integer todayUv;
 
     private Integer todayUip;
+
+    private Integer totalPv;
+
+    private Integer totalUv;
+
+    private Integer totalUip;
 }
