@@ -1,7 +1,6 @@
 package com.example.shortlink.project.service.imp;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.UUID;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -11,8 +10,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.shortlink.project.common.constant.RedisCacheConstant;
 import com.example.shortlink.project.common.convention.exception.ServiceException;
-import com.example.shortlink.project.dao.entity.*;
-import com.example.shortlink.project.dao.mapper.*;
+import com.example.shortlink.project.dao.entity.ShortLinkDO;
+import com.example.shortlink.project.dao.entity.ShortLinkLocaleStatsDO;
+import com.example.shortlink.project.dao.mapper.ShortLinkMapper;
 import com.example.shortlink.project.dto.req.ShortLinkCreateReqDTO;
 import com.example.shortlink.project.dto.req.ShortLinkPageReqDTO;
 import com.example.shortlink.project.dto.req.ShortLinkUpdateReqDTO;
@@ -138,13 +138,13 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         ShortLinkDO shortLinkDO = baseMapper.selectOne(wrapper);
 
         if (shortLinkDO != null) {
-            if (shortLinkUpdateReqDTO.getNewGid() != null) {
-                baseMapper.deleteById(shortLinkDO.getId());
+            if (shortLinkUpdateReqDTO.getGid() != null) {
+                baseMapper.delete(wrapper);
                 ShortLinkDO newShortLink = new ShortLinkDO();
                 BeanUtils.copyProperties(shortLinkDO, newShortLink);
-                newShortLink.setId(null);
-                newShortLink.setGid(shortLinkUpdateReqDTO.getNewGid());
                 BeanUtils.copyProperties(shortLinkUpdateReqDTO, newShortLink);
+                newShortLink.setGid(shortLinkUpdateReqDTO.getGid());
+                newShortLink.setId(null);
                 baseMapper.insert(newShortLink);
             }
             else {
@@ -242,8 +242,6 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         String ip = LinkUtil.getIp(request);
         int newIp = stringRedisTemplate.opsForSet().add(RedisCacheConstant.FULL_SHORT_URL_UIP_PREFIX + fullShortUrl, ip).intValue();
         Date now = new Date();
-        int hour = DateUtil.hour(now, true);
-        int weekday = DateUtil.dayOfWeekEnum(now).getIso8601Value();
         int uv = isNewVisitor ? 1 : 0;
         ShortLinkLocaleStatsDO localeStats = LinkUtil.getLocaleStats(ip, fullShortUrl);
         String userAgent = request.getHeader("User-Agent");

@@ -33,4 +33,16 @@ public class ShortLinkPageRespDTO {
     private String describe;
 
     private String favicon;
+
+    private Integer totalPv;
+
+    private Integer totalUv;
+
+    private Integer totalUip;
+
+    private Integer todayPv;
+
+    private Integer todayUv;
+
+    private Integer todayUip;
 }
