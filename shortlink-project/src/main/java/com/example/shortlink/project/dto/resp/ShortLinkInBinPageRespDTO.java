@@ -33,4 +33,10 @@ public class ShortLinkInBinPageRespDTO {
     private String describe;
 
     private String favicon;
+
+    private Integer todayPv;
+
+    private Integer todayUv;
+
+    private Integer todayUip;
 }

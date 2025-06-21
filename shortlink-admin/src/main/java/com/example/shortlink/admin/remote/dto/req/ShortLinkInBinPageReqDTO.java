@@ -8,5 +8,4 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class ShortLinkInBinPageReqDTO extends Page {
-    private String gid;
 }
