@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/short-link/v1/recycle-bin")
+@RequestMapping("/api/short-link/admin/v1/recycle-bin")
 @RequiredArgsConstructor
 public class RecycleBinController {
     

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/short-link/v1/link")
+@RequestMapping("/api/short-link/admin/v1/link")
 public class ShortLinkController {
 
     private final ShortLinkRemoteService shortLinkRemoteService;

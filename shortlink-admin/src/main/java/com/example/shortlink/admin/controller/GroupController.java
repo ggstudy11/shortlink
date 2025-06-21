@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/short-link/v1/group")
+@RequestMapping("/api/short-link/admin/v1/group")
 @RequiredArgsConstructor
 public class GroupController {
 
