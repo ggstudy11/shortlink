@@ -36,7 +36,7 @@ public interface ShortLinkRemoteService {
     @PostMapping("/api/short-link/v1/link/update")
     Result<Void> updateShortLink(@RequestBody ShortLinkUpdateReqDTO shortLinkUpdateReqDTO);
 
-    @GetMapping("/api/short-link/v1/url")
+    @GetMapping("/api/short-link/v1/url/title")
     Result<String> getTitle(@RequestParam("url") String url);
 
     @PostMapping("/api/short-link/v1/recycle-bin")
