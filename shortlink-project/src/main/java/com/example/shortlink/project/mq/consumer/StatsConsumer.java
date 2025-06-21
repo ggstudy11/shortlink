@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -42,7 +43,7 @@ public class StatsConsumer {
             String payload = new String(message.getBody(), StandardCharsets.UTF_8);
             log.info("收到信息:{}", payload);
 
-            Long add = stringRedisTemplate.opsForSet().add(RedisCacheConstant.SHORT_URL_STATS_UNIQUE_MESSAGE, message.getMessageProperties().getCorrelationId());
+            Long add = stringRedisTemplate.opsForSet().add(RedisCacheConstant.SHORT_URL_STATS_UNIQUE_MESSAGE, message.getMessageProperties().getMessageId());
             if (add == null || add == 0) {
                 log.info("消息重复消费");
                 channel.basicAck(deliveryTag, false);
@@ -87,7 +88,7 @@ public class StatsConsumer {
                 .weekday(weekday)
                 .fullShortUrl(fullShortUrl)
                 .build();
-        shortLinkAccessStatsMapper.insert(shortLinkAccessStatsDO);
+        shortLinkAccessStatsMapper.insertOrUpdate(shortLinkAccessStatsDO);
     }
 
     private void saveOsStats(StatsMessage statsMessage) {

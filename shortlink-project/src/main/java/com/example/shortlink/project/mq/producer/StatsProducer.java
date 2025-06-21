@@ -25,6 +25,7 @@ public class StatsProducer {
                 JSON.toJSONString(payload),
                 message -> {
                     message.getMessageProperties().setDeliveryMode(MessageDeliveryMode.PERSISTENT);
+                    message.getMessageProperties().setMessageId(UUID.randomUUID().toString());
                     return message;
                 },
                 correlationData
