@@ -46,10 +46,10 @@ spring:
 
 
 
-mybatis-plus:
-  global-config:
-    db-config:
-      logic-delete-field: delFlag
-      logic-delete-value: 1
-      logic-not-delete-value: 0
-      id-type: auto
+#mybatis-plus:
+#  global-config:
+#    db-config:
+#      logic-delete-field: delFlag
+#      logic-delete-value: 1
+#      logic-not-delete-value: 0
+#      id-type: auto
