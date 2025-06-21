@@ -51,4 +51,6 @@ public interface ShortLinkRemoteService {
     @GetMapping("/api/short-link/v1/stats")
     Result<ShortLinkStatsRespDTO> getLinkStats(@SpringQueryMap ShortLinkStatsReqDTO shortLinkStatsReqDTO);
 
+    @GetMapping("/api/short-link/v1/stats/access")
+    Result<Page<ShortLinkAccessRespDTO>> pageAccess(@SpringQueryMap ShortLinkAccessReqDTO shortLinkAccessReqDTO);
 }
