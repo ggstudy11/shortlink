@@ -41,7 +41,6 @@ public class RecycleBinServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLin
     @Override
     public IPage<ShortLinkInBinPageRespDTO> pageInBin(ShortLinkInBinPageReqDTO shortLinkInBinPageReqDTO) {
         LambdaQueryWrapper<ShortLinkDO> wrapper = Wrappers.lambdaQuery(ShortLinkDO.class)
-                .eq(ShortLinkDO::getGid, shortLinkInBinPageReqDTO.getGid())
                 .eq(ShortLinkDO::getEnableStatus, 0)
                 .eq(ShortLinkDO::getDelFlag, 0);
 
