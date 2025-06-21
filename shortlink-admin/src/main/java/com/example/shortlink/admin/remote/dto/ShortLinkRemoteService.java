@@ -3,18 +3,15 @@ package com.example.shortlink.admin.remote.dto;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.shortlink.admin.common.convention.result.Result;
 import com.example.shortlink.admin.remote.dto.req.*;
-import com.example.shortlink.admin.remote.dto.resp.ShortLinkCountRespDTO;
-import com.example.shortlink.admin.remote.dto.resp.ShortLinkCreateRespDTO;
-import com.example.shortlink.admin.remote.dto.resp.ShortLinkInBinPageRespDTO;
-import com.example.shortlink.admin.remote.dto.resp.ShortLinkPageRespDTO;
-import java.util.List;
-
+import com.example.shortlink.admin.remote.dto.resp.*;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 @FeignClient("project-service")
 public interface ShortLinkRemoteService {
@@ -50,4 +47,8 @@ public interface ShortLinkRemoteService {
 
     @PostMapping("/api/short-link/v1/recycle-bin/delete")
     Result<Void> deleteShortLink(@RequestBody ShortLinkDeleteReqDTO shortLinkDeleteReqDTO);
+
+    @GetMapping("/api/short-link/v1/stats")
+    Result<ShortLinkStatsRespDTO> getLinkStats(@SpringQueryMap ShortLinkStatsReqDTO shortLinkStatsReqDTO);
+
 }
