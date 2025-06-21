@@ -13,7 +13,7 @@ public class ShortLinkUpdateReqDTO {
 
     private String fullShortUrl;
 
-    private String newGid;
+    private String gid;
 
     private Integer validDateType;
 
