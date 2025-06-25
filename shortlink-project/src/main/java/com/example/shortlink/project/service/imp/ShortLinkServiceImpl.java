@@ -60,13 +60,13 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
 
     @Override
     public ShortLinkCreateRespDTO create(ShortLinkCreateReqDTO shortLinkCreateReqDTO) {
-        String shortLinkSuffix = generateSuffix("localhost:8081", shortLinkCreateReqDTO.getOriginUrl());
+        String shortLinkSuffix = generateSuffix("49.234.192.196:8081", shortLinkCreateReqDTO.getOriginUrl());
         ShortLinkDO shortLinkDO = BeanUtil.toBean(shortLinkCreateReqDTO, ShortLinkDO.class);
-        shortLinkDO.setFullShortUrl("localhost:8081" + "/" + shortLinkSuffix);
+        shortLinkDO.setFullShortUrl("49.234.192.196:8081" + "/" + shortLinkSuffix);
         shortLinkDO.setShortUri(shortLinkSuffix);
         shortLinkDO.setEnableStatus(1);
         shortLinkDO.setFavicon(getFavicon(shortLinkCreateReqDTO.getOriginUrl()));
-        shortLinkDO.setDomain("localhost:8081");
+        shortLinkDO.setDomain("49.234.192.196:8081");
         /* 这里应该是有问题的 */
 
         try {
