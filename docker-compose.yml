@@ -1,0 +1,43 @@
+services:
+  gateway:
+    image: ggstudy11/shortlink-admin:v1.0.0
+    build:
+      context: ./shortlink-admin
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    environment:
+      - JAVA_OPTS=-Xms256m -Xmx512m -XX:+UseG1GC
+    networks:
+      - app-network
+
+  user-service:
+    image: ggstudy11/shortlink-project:v1.0.0
+    build:
+      context: ./shortlink-project
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      - JAVA_OPTS=-Xms256m -Xmx512m -XX:+UseG1GC
+    networks:
+      - app-network
+
+  file-service:
+    image: ggstudy11/shortlink-gateway:v1.0.0
+    build:
+      context: ./shortlink-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - JAVA_OPTS=-Xms256m -Xmx512m -XX:+UseG1GC
+    networks:
+      - app-network
+
+
+
+
+networks:
+  app-network:
+    driver: bridge
