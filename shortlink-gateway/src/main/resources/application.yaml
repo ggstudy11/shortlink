@@ -6,6 +6,12 @@ spring:
   application:
     name: gateway
 
+  data:
+    redis:
+      host: 8.153.102.70
+      port: 6379
+      password: 07030877
+
   cloud:
     nacos:
       discovery:
