@@ -23,6 +23,7 @@ import com.example.shortlink.project.mq.message.StatsMessage;
 import com.example.shortlink.project.mq.producer.StatsProducer;
 import com.example.shortlink.project.service.ShortLinkService;
 import com.example.shortlink.project.utils.HashUtil;
+import com.example.shortlink.project.utils.LeafUtil;
 import com.example.shortlink.project.utils.LinkUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -56,11 +57,12 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private final StringRedisTemplate stringRedisTemplate;
     private final RedissonClient redissonClient;
     private final StatsProducer statsProducer;
+    private final LeafUtil leafUtil;
 
 
     @Override
     public ShortLinkCreateRespDTO create(ShortLinkCreateReqDTO shortLinkCreateReqDTO) {
-        String shortLinkSuffix = generateSuffix("49.234.192.196:8081", shortLinkCreateReqDTO.getOriginUrl());
+        String shortLinkSuffix = generateSuffix("49.234.192.196:8081");
         ShortLinkDO shortLinkDO = BeanUtil.toBean(shortLinkCreateReqDTO, ShortLinkDO.class);
         shortLinkDO.setFullShortUrl("49.234.192.196:8081" + "/" + shortLinkSuffix);
         shortLinkDO.setShortUri(shortLinkSuffix);
@@ -269,14 +271,14 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         statsProducer.sendMessage(statsMessage);
     }
 
-    private String generateSuffix(String domain, String originUrl) {
+    private String generateSuffix(String domain) {
         int generateCount = 0;
         String shortUri = "";
         while (true) {
             if (generateCount++ > 10) {
                 throw new ServiceException("短链接生成频繁，请稍后再试");
             }
-            shortUri = HashUtil.hashToBase62(originUrl + System.currentTimeMillis());
+            shortUri = HashUtil.convertDecToBase62(leafUtil.nextId());
             if (!shortUriCreateCachePenetrationBloomFilter.contains(domain + '/' + shortUri)) {
                 break;
             }

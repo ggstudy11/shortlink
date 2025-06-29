@@ -1,7 +1,5 @@
 package com.example.shortlink.project.utils;
 
-import cn.hutool.core.lang.hash.MurmurHash;
-
 /**
  * HASH 工具类
  */
@@ -15,7 +13,7 @@ public class HashUtil {
 
     private static final int SIZE = CHARS.length;
 
-    private static String convertDecToBase62(long num) {
+    public static String convertDecToBase62(long num) {
         StringBuilder sb = new StringBuilder();
         while (num > 0) {
             int i = (int) (num % SIZE);
@@ -23,11 +21,5 @@ public class HashUtil {
             num /= SIZE;
         }
         return sb.reverse().toString();
-    }
-
-    public static String hashToBase62(String str) {
-        int i = MurmurHash.hash32(str);
-        long num = i < 0 ? Integer.MAX_VALUE - (long) i : i;
-        return convertDecToBase62(num);
     }
 }
