@@ -5,9 +5,8 @@ import com.example.shortlink.project.dao.entity.ShortLinkAccessLogsDO;
 import com.example.shortlink.project.dto.req.ShortLinkStatsReqDTO;
 import com.example.shortlink.project.dto.resp.ShortLinkStatsTopIpRespDTO;
 import com.example.shortlink.project.dto.resp.ShortLinkStatsUvRespDTO;
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-
+import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 
 @Mapper
