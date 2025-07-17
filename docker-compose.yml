@@ -1,5 +1,5 @@
 services:
-  gateway:
+  admin-service:
     image: ggstudy11/shortlink-admin:v1.0.0
     build:
       context: ./shortlink-admin
@@ -11,7 +11,7 @@ services:
     networks:
       - app-network
 
-  user-service:
+  project-service:
     image: ggstudy11/shortlink-project:v1.0.0
     build:
       context: ./shortlink-project
@@ -23,7 +23,7 @@ services:
     networks:
       - app-network
 
-  file-service:
+  gateway:
     image: ggstudy11/shortlink-gateway:v1.0.0
     build:
       context: ./shortlink-gateway
