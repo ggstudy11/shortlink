@@ -16,6 +16,7 @@ public class LeafUtil {
     private final IDGen leafSegmentService;
 
     public Long nextId() {
+        log.info("发号器获取下一个id");
         Result result = leafSegmentService.get("short-link-create");
         if (result.getStatus() == Status.SUCCESS) {
             log.info("美团Leaf-segment ID生成器:{}", result);
